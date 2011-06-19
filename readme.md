@@ -8,5 +8,6 @@ as well as file locking to ensure that only a single copy of a given daemon
 is running at a time. Currently, libdaemon is not threaded.
 
 support platforms:    
-* OpenBSD
+
++  OpenBSD
 
