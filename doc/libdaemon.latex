@@ -1,0 +1,179 @@
+\documentclass[10pt,letterpaper]{article}
+
+\title{libdaemon: a lightweight daemon framework for OpenBSD}
+\author{Kyle ~Isom\\coder@kyleisom.net}
+
+\begin{document}
+\maketitle
+\section*{Introduction}
+\verb|libdaemon| is a lightweight daemon framework for OpenBSD. It provides
+facilities for logging and a signal handler to enable graceful shutdown, as well
+as file locking to ensure that only a single copy of a given daemon is running
+at a time. Currently, libdaemon is not threaded.
+
+\verb|libdaemon| may be installed using the typical \verb|make && make install|
+and may be removed with \verb|make uninstall|. It installs to \verb|/usr/local|
+as per the OpenBSD defaults.
+
+\section*{Using libdaemon} 
+\verb|libdaemon| has four usable functions:
+\begin{description}
+  \item[daemonise] is the daemon initialisation code.
+  \item[daemon\_set\_logfile] is used to set a file to logfile (or 
+  alternatively, setup syslog logging).
+  \item[daemon\_log] writes a simple \verb|char *| buffer to the logfile.
+  \item[daemon\_vlog] is the varargs variant of \verb|daemon_log|. 
+\end{description}
+
+A typical daemon would call \verb|daemonise| with the daemon's name as an 
+argument. If the \verb|daemonise()| call returned \verb|EXIT_SUCCESS|, the
+daemon should call \verb|daemon_set_logfile()| with either the full path to the
+logfile or \verb|NULL|. At this point, the daemon can move into it's code loop
+and use the functions \verb|daemon_log| and \verb|daemon_vlog| to write to the
+logs. The daemon may be gracefully shutdown by sending the daemon the signal
+\verb|SIGUSR1|.
+\newpage{}
+\section*{Function Reference}
+
+\subsection*{daemonise: daemonise a program}
+\begin{description}
+    \item[Prototype:] \verb|int daemonise(char *)|
+    \item[Arguments:]
+        \begin{description}
+            \item[char *d\_name:] contains the name of the daemon
+        \end{description}
+    \item[Returns:] 
+        \begin{description}
+            \item[EXIT\_SUCCESS:] program successfully daemonised
+            \item[EXIT\_FAILURE:] program could not be daemonised
+        \end{description}
+    \item[Notes:] there are several reasons why the program might not be able
+    to daemonise. One of the most common is that a copy of the daemon is 
+    already running, or the daemon doesn't have the appropriate permissions.
+    By default, the daemon runs as \verb|root:daemon| and requires the ability 
+    to create \verb|/var/run/<daemon name>/| and write files in that directory.
+\end{description}
+
+\subsection*{daemon\_set\_logfile: set the daemon's logfile}
+\begin{description}
+    \item[Prototype:] \verb|int daemon_set_logfile(char *)|
+    \item[Arguments:] 
+        \begin{description}
+            \item[char *filename:] the full path to the logfile (keeping in
+            mind the daemon \verb|chdir()|'s to \verb|/| on daemonisation).
+            If set to \verb|NULL|, the daemon will log to syslog. 
+            \verb|libdaemon| will \textbf{not} create any directories; the
+            calling code must ensure the directory component exists.
+        \end{description}
+    \item[Returns:]
+        \begin{description} \item[EXIT\_SUCCESS:] the logfile was successfully set. If not logging to syslog, this means the daemon now has an open file descriptor for the logfile that remains open until the daemon is
+            shutdown.
+            \item[EXIT\_FAILURE:] the logfile could not be opened.  Another 
+            point of failure is the case where the daemon does not have the 
+            appropriate permissions to open the logfile (or cannot open the 
+            logfile for another reason, such as the directory does not exist).
+        \end{description}
+\end{description}
+\newpage{}
+\subsection*{daemon\_log: log a string in the daemon's logfile}
+\begin{description}
+    \item[Prototype:] \verb|int daemon_log_(int, char *)|
+    \item[daemon\_log]
+    \item[Arguments:] 
+        \begin{enumerate}
+            \item \textbf{int}: the log level. This is only important when
+            the daemon is using syslog. If the daemon is using its own 
+            logfile, this value is ignored. This should be one of the standard
+            syslog(3) enumerations such as \verb|LOG_INFO| or \verb|LOG_WARN|.
+            \item \textbf{char *}: the message to be sent to the logfile.
+        \end{enumerate}
+\end{description}
+
+\subsection*{daemon\_vlog: send a format string to the logfile}
+\begin{description}
+    \item[Prototype:] \verb|int daemon_vlog_(int, char *)|
+    \item[Arguments:] 
+    \begin{enumerate}
+        \item \textbf{int}: the log level, as in \verb|daemon_log|
+        \item \textbf{char *}: the format string - all the standard best 
+        practices and security techniques should be observed when handling
+        format strings!
+        \item \textbf{...}: a list of arguments appropriate to the supplied
+        format string should be supplied as well.
+    \end{enumerate}
+    \item[Notes:] the macro \verb|LIBDAEMON_LOG_MAX| contains the maximum
+    length that a message string may be. By default, this is the 128 bytes. If
+    a filename was passed in, it needs to be within the length of the macro\\
+    \verb|LIBDAEMON_FILENAME_MAX| which, by default, is 128 
+    bytes. If the filename is longer than this, rather than truncate
+    it, the function will fail.
+\end{description}
+
+\newpage{}
+\section*{Example Daemon}
+This is a simple daemon that checks the load average every 60 seconds, and if
+the load is higher than hardcoded value, logs the condition. It is a pretty
+simple daemon that's not of much use, but it's a good display of how to use 
+the daemon functions.
+
+\begin{verbatim}
+/***********************************************
+ * testd.c                                     *
+ * Kyle Isom <coder@kyleisom.net>              *
+ *                                             *
+ * test daemon code to show usage of libdaemon *
+ *                                             *
+ * released under an ISC license.              * 
+ ***********************************************/
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <syslog.h>
+#include <unistd.h>
+#include "daemon.h"
+
+#define LOAD_WARN_THRESH                1.5
+
+#ifdef USE_SYSLOG
+#define LOGFILE                         NULL
+#else
+#define LOGFILE                         "/var/log/testd.log"
+#endif
+
+int 
+main(int argc, char **argv) 
+{
+    double lavg[1];         /* load average */
+    
+    /* daemonise the program */
+    if (EXIT_SUCCESS != daemonise("testd") {
+        syslog(LOG_INFO, "error daemonising!\n");
+        return EXIT_FAILURE;
+    }   
+
+    /* set up logging */
+    if (EXIT_SUCCESS == daemon_set_logfile(LOGFILE))
+        daemon_log(-1, "running!");
+    else
+        return result;
+
+    /* main run loop */
+    while (1) {
+        /* get one minute load average */
+        if (-1 == getloadavg(lavg, 1))  
+            daemon_log(LOG_INFO, "error retrieving load average!");
+        else if (lavg[0] > LOAD_WARN_THRESH)
+            daemon_vlog(LOG_WARNING, "load average exceeded %f: "
+                        "is %f!\n", LOAD_WARN_THRESH, lavg[0]);
+        else
+            daemon_log(LOG_INFO, "wakes up...\n");
+        sleep(60);
+    }   
+    
+    /* should not end up here - all shutdowns should be via signal */
+    return EXIT_SUCCESS;
+}
+
+\end{verbatim}
+\end{document}
+
