@@ -6,11 +6,12 @@
  * libdaemon: devio.us C library to facilitate daemonising                *
  *                                                                        *
  * this is a small C library providing a few functions to make creating   *
- * daemons under OpenBSD much easier. It is OpenBSD specific and will     *
- * not compile under Linux. See the header file for documentation.        *
+ * daemons under Linux much easier. It is Linux specific and will         *
+ * not compile under OpenBSD.                                             *
  *                                                                        *
  **************************************************************************/
 
+#include <sys/file.h>
 #include <sys/stat.h>
 #include <sys/types.h>
 
@@ -27,7 +28,6 @@
 #include "daemon.h"
 
 /* global vars */
-static pid_t daemon_pid;                                /* daemon's pid      */
 static int daemon_logfd;                                /* logfile fd        */
 static int daemon_pidfd;                                /* pidfile fd        */
 static char pname[LIBDAEMON_D_NAME_MAX_LEN + 1];        /* process name      */
@@ -44,16 +44,18 @@ static int  daemon_gen_pidfile(int);
 int 
 daemonise(char *d_name) 
 {
-    int fd;                     /* file descriptor when redirecting I/O      */
-    struct stat vd_stat;        /* stat struct to test for directory         */
     char vardir[LIBDAEMON_FILENAME_MAX];
+    struct stat vd_stat;        /* stat struct to test for directory         */
+    size_t i;
+    int fd;                     /* file descriptor when redirecting I/O      */
 
     /* truncating names may have unintended effects */
     if (strlen(d_name) > LIBDAEMON_D_NAME_MAX_LEN) 
         return EXIT_FAILURE;
 
     /* build strings */
-    strlcpy(pname, d_name, LIBDAEMON_D_NAME_MAX_LEN);
+    memset(pname, LIBDAEMON_D_NAME_MAX_LEN + 1, '\x00');
+    strncpy(pname, d_name, LIBDAEMON_D_NAME_MAX_LEN);
     snprintf(vardir, LIBDAEMON_FILENAME_MAX, "%s/%s/", 
              LIBDAEMON_BASE_RUNDIR, pname);
 
@@ -95,23 +97,21 @@ daemonise(char *d_name)
     /* chdir to root */
     chdir("/");
 
-     /* close all file descriptors */
-    if (0 != closefrom(0)) 
-        return EXIT_FAILURE;
+    /* close all file descriptors */
+    for (i = 0; i < 3; ++i) 
+        if (0 != close(i)) 
+            return EXIT_FAILURE;
 
     /* redirect I/O to /dev/null for security and stability */
     fd = open("/dev/null", O_RDWR);
     dup(fd);
     dup(fd);
 
-   /* get pid and generate lock and pid-file names */
-    daemon_pid = getpid();
-
     /* 
      * obtain a lock - not getting one means either system error or 
      * the daemon is already running. 
      */
-    daemon_pidfd = daemon_gen_pidfile(NULL);
+    daemon_pidfd = daemon_gen_pidfile(0);
 
     if (-1 == daemon_pidfd) {
         syslog(LOG_INFO, "gen_pid failure");

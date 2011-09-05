@@ -6,8 +6,8 @@
  * libdaemon: devio.us C library to facilitate daemonising                *
  *                                                                        *
  * this is a small C library providing a few functions to make creating   *
- * daemons under OpenBSD much easier. It is OpenBSD specific and will     *
- * not compile under Linux.                                               *
+ * daemons under Linux much easier. It is Linux specific and will         *
+ * not compile under OpenBSD.                                             *
  *                                                                        *
  **************************************************************************/
 
