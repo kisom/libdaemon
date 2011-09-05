@@ -9,7 +9,8 @@
 \verb|libdaemon| is a lightweight daemon framework for OpenBSD. It provides
 facilities for logging and a signal handler to enable graceful shutdown, as well
 as file locking to ensure that only a single copy of a given daemon is running
-at a time. Currently, libdaemon is not threaded.
+at a time. Currently, libdaemon is not threaded. It is currently being 
+ported to Linux.
 
 \verb|libdaemon| may be installed using the typical \verb|make && make install|
 and may be removed with \verb|make uninstall|. It installs to \verb|/usr/local|
