@@ -43,9 +43,9 @@ static int  daemon_gen_pidfile(int);
 int 
 daemonise(char *d_name) 
 {
-    int fd;                     /* file descriptor when redirecting I/O      */
-    struct stat vd_stat;        /* stat struct to test for directory         */
     char vardir[LIBDAEMON_FILENAME_MAX];
+    struct stat vd_stat;        /* stat struct to test for directory         */
+    int fd;                     /* file descriptor when redirecting I/O      */
 
     /* truncating names may have unintended effects */
     if (strlen(d_name) > LIBDAEMON_D_NAME_MAX_LEN) 
