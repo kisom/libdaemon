@@ -27,7 +27,6 @@
 #include "daemon.h"
 
 /* global vars */
-static pid_t daemon_pid;                                /* daemon's pid      */
 static int daemon_logfd;                                /* logfile fd        */
 static int daemon_pidfd;                                /* pidfile fd        */
 static char pname[LIBDAEMON_D_NAME_MAX_LEN + 1];        /* process name      */
@@ -103,9 +102,6 @@ daemonise(char *d_name)
     fd = open("/dev/null", O_RDWR);
     dup(fd);
     dup(fd);
-
-   /* get pid and generate lock and pid-file names */
-    daemon_pid = getpid();
 
     /* 
      * obtain a lock - not getting one means either system error or 
