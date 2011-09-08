@@ -2,7 +2,7 @@ SYSTEM="$(uname -s)"
 echo "SYSTEM: ${SYSTEM}"
 
 AC_PREREQ([2.62])
-AC_INIT([libdaemon], [2.0.1], [coder@kyleisom.net])
+AC_INIT([libdaemon], [2.1], [coder@kyleisom.net])
 AC_CONFIG_SRCDIR([src/daemon.c])
 AC_CHECK_HEADERS
 
