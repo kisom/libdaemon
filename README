@@ -10,4 +10,5 @@ is running at a time. Currently, libdaemon is not threaded.
 supported platforms:    
 
 +  OpenBSD
++  Linux
 

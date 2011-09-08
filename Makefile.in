@@ -1,0 +1,54 @@
+# @configure_input@
+
+# package-specific variables
+package     = @PACKAGE_NAME@
+version     = @PACKAGE_VERSION@
+tarname     = @PACKAGE_TARNAME@
+distdir     = $(tarname)-$(version)
+
+# location variables
+prefix      = @prefix@
+exec_prefix = @exec_prefix@
+bindir      = @bindir@
+libdir      = @libdir@
+includedir  = @includedir@
+
+all clean install uninstall:
+	cd src && $(MAKE) $@
+	cd doc && $(MAKE) $@
+
+docs: pdf
+
+pdf install-pdf: 
+	cd doc && $(MAKE) $@
+
+realclean: clean distclean
+	-cd src && $(MAKE) $@
+	-cd doc && $(MAKE) $@
+	-rm -r autom4te.cache
+	-rm config.*
+	-rm configure
+	-rm Makefile
+
+$(distdir).tar.gz: $(distdir)
+	tar czf $(distdir).tar.gz $(distdir)
+	rm -r $(distdir)
+
+$(distdir): distclean
+	./distcp.sh MANIFEST $(distdir)
+
+distclean:
+	-rm -r $(distdir)
+	-rm $(distdir).tar.gz
+
+distcheck: $(distdir).tar.gz
+	tar xzf $(distdir).tar.gz
+	cd $(distdir) && ./configure --prefix=$$(pwd)/_inst
+	cd $(distdir) && $(MAKE) all
+	cd $(distdir) && $(MAKE) install
+	cd $(distdir) && $(MAKE) uninstall
+	cd $(distdir) && $(MAKE) clean
+	rm -r $(distdir)
+	@echo "[+] $(package).tar.gz ready for distribution."
+
+.PHONY: all clean install uninstall dist distcheck distclean realclean

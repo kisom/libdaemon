@@ -6,17 +6,19 @@
  * libdaemon: devio.us C library to facilitate daemonising                *
  *                                                                        *
  * this is a small C library providing a few functions to make creating   *
- * daemons under Linux much easier. It is Linux specific and will         *
- * not compile under OpenBSD.                                             *
+ * daemons under OpenBSD much easier. It is OpenBSD specific and will     *
+ * not compile under Linux. See the header file for documentation.        *
  *                                                                        *
  **************************************************************************/
 
+#ifdef _LINUX_SOURCE
 #include <sys/file.h>
+#endif
 #include <sys/stat.h>
 #include <sys/types.h>
 
 #include <errno.h>
-#include <fcntl.h>
+#include <fcntl.h>      /* not necessary but not harmful under linux */
 #include <signal.h>
 #include <stdio.h>
 #include <stdarg.h>
@@ -42,11 +44,10 @@ static int  daemon_gen_pidfile(int);
 /* begin function definitions */
 
 int 
-daemonise(char *d_name) 
+daemonise(char *d_name, uid_t run_uid, gid_t run_gid) 
 {
     char vardir[LIBDAEMON_FILENAME_MAX];
     struct stat vd_stat;        /* stat struct to test for directory         */
-    size_t i;
     int fd;                     /* file descriptor when redirecting I/O      */
 
     /* truncating names may have unintended effects */
@@ -54,8 +55,7 @@ daemonise(char *d_name)
         return EXIT_FAILURE;
 
     /* build strings */
-    memset(pname, LIBDAEMON_D_NAME_MAX_LEN + 1, '\x00');
-    strncpy(pname, d_name, LIBDAEMON_D_NAME_MAX_LEN);
+    STRCPY(pname, d_name, LIBDAEMON_D_NAME_MAX_LEN);
     snprintf(vardir, LIBDAEMON_FILENAME_MAX, "%s/%s/", 
              LIBDAEMON_BASE_RUNDIR, pname);
 
@@ -65,9 +65,13 @@ daemonise(char *d_name)
         return EXIT_FAILURE;
 
     /* drop privileges */
-    if (0 != setreuid(LIBDAEMON_UID, LIBDAEMON_UID))
+    if (-1 == run_uid) 
+        run_uid = LIBDAEMON_DEFAULT_UID;
+    if (-1 == run_gid)
+        run_gid = LIBDAEMON_DEFAULT_GID;
+    if (0 != setreuid(run_uid, run_uid))
         return EXIT_FAILURE;
-    else if (0 != setregid(LIBDAEMON_GID, LIBDAEMON_GID))
+    else if (0 != setregid(run_gid, run_gid))
         return EXIT_FAILURE;
 
     /* exit if already a daemon */
@@ -97,10 +101,13 @@ daemonise(char *d_name)
     /* chdir to root */
     chdir("/");
 
-    /* close all file descriptors */
-    for (i = 0; i < 3; ++i) 
-        if (0 != close(i)) 
-            return EXIT_FAILURE;
+     /* close all file descriptors */
+#ifdef _LINUX_SOURCE
+    if ((0 != close(0)) || (0 != close(1)) || (0 != close(2)))
+#else
+    if (0 != closefrom(0)) 
+#endif
+        return EXIT_FAILURE;
 
     /* redirect I/O to /dev/null for security and stability */
     fd = open("/dev/null", O_RDWR);
@@ -111,7 +118,7 @@ daemonise(char *d_name)
      * obtain a lock - not getting one means either system error or 
      * the daemon is already running. 
      */
-    daemon_pidfd = daemon_gen_pidfile(0);
+    daemon_pidfd = daemon_gen_pidfile(0x0);
 
     if (-1 == daemon_pidfd) {
         syslog(LOG_INFO, "gen_pid failure");

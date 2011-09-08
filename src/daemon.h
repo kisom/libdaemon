@@ -6,8 +6,8 @@
  * libdaemon: devio.us C library to facilitate daemonising                *
  *                                                                        *
  * this is a small C library providing a few functions to make creating   *
- * daemons under Linux much easier. It is Linux specific and will         *
- * not compile under OpenBSD.                                             *
+ * daemons under OpenBSD much easier. It is OpenBSD specific and will     *
+ * not compile under Linux.                                               *
  *                                                                        *
  **************************************************************************/
 
@@ -17,8 +17,8 @@
 #define DEBUG                             1
 
 /* permission defines */
-#define LIBDAEMON_UID                     0             /* run as root        */
-#define LIBDAEMON_GID                     1             /* run as daemon      */
+#define LIBDAEMON_DEFAULT_UID             0             /* run as root        */
+#define LIBDAEMON_DEFAULT_GID             1             /* run as daemon      */
 
 /* string length defines */
 #define LIBDAEMON_LOG_MAX               128             /* max log msg len    */
@@ -36,17 +36,23 @@
 #define LIBDAEMON_PIDF_TEST              0x01           /* flag to test for   *
                                                          * presence of pid    *
                                                          * file               */
-
+#ifdef _LINUX_SOURCE
+#define STRCPY      strncpy
+#else
+#define STRCPY      strlcpy
+#endif
 /* 
  * daemonise: daemonise a program
  *      arguments: a char buffer that is the name of the daemon
+ *                 a uid_t with the uid to run as
+ *                 a git_t with the gid to run as
  *      returns: EXIT_SUCCESS if the program was successfully daemonised,
  *               EXIT_FAILURE if the program could not be daemonised
  *
  *      by default, the daemonised process may be gracefully shutdown by
  *      sending the process the signal SIGUSR1.
  */
-int daemonise(char *);
+int daemonise(char *d_name, uid_t run_uid, gid_t run_gid);
 
 /*
  * daemon_set_logfile: set the daemon's logfile

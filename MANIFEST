@@ -1,0 +1,11 @@
+src/Makefile.in
+src/daemon.c
+src/testd.c
+src/daemon.h
+doc/Makefile.in
+doc/libdaemon.ltx
+MANIFEST
+Makefile.in
+configure
+distcp.sh
+README

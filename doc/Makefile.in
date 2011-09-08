@@ -1,0 +1,47 @@
+# @configure_input@
+
+# package-specific variables
+package		= @PACKAGE_NAME@
+version		= @PACKAGE_VERSION@
+tarname		= @PACKAGE_TARNAME@
+distdir		= $(tarname)-$(version)
+
+# location variables
+prefix		= @prefix@
+exec_prefix	= @exec_prefix@
+bindir		= @bindir@
+libdir		= @libdir@
+includedir	= @includedir@
+datarootdir	= @datarootdir@
+docdir		= @docdir@
+pdfdir		= @pdfdir@
+
+PDFLATEX ?= pdflatex
+
+all: pdf
+
+pdf: $(package).pdf
+
+mostlyclean:
+	-rm *.aux
+	-rm *.log
+
+clean: mostlyclean
+	-rm *.pdf
+
+%.pdf: %.ltx
+	$(PDFLATEX) $<
+
+realclean: clean
+	rm Makefile
+
+install: install-pdf
+
+install-pdf: $(package).pdf
+	install -d $(docdir)/$(package)
+	install -m 0755 $(package).pdf $(docdir)/$(package)
+
+uninstall: uninstall-pdf
+
+uninstall-pdf:
+	-rm -r $(docdir)/$(package)

@@ -1,0 +1,62 @@
+# @configure_input@
+
+# package-specific variables
+package     = @PACKAGE_NAME@
+version     = @PACKAGE_VERSION@
+tarname     = @PACKAGE_TARNAME@
+distdir     = $(tarname)-$(version)
+
+# location variables
+prefix      = @prefix@
+exec_prefix = @exec_prefix@
+bindir      = @bindir@
+libdir      = @libdir@
+includedir  = @includedir@
+
+# -Wno-format-security because the one place formats are actually used, they
+# are passed through to the user
+CFLAGS ?= -Wall -Werror -Wno-format-security -g -I/usr/local/include 
+CFLAGS := $(CFLAGS) -D_LINUX_SOURCE
+LFLAGS ?= -fPIC 
+LDFLAGS ?= -L.
+
+all: libdaemon.a
+
+install: libdaemon.a
+	install -d $(libdir)
+	install -d $(includedir)
+	install -m 0755 libdaemon.a $(libdir)
+	install -m 0755 daemon.h $(includedir)
+
+uninstall:
+	-rm $(prefix)/libdaemon.a
+	-rm $(prefix)/daemon.h
+	
+
+libdaemon.a: daemon.c
+	$(CC) $(CFLAGS) $(LFLAGS) -o libdaemon.o -c daemon.c
+	ar r libdaemon.a libdaemon.o
+	rm libdaemon.o
+
+%.o: *.c
+	$(CC) $(CFLAGS) $<
+
+tags:
+	ctags *.[ch] >tags
+
+secreports: 
+	rats *.c > rats.txt
+	lint *.c > lint.txt
+
+testd: testd.c
+	$(CC) $(CFLAGS) -c -o testd testd.c -ldaemon
+
+clean:
+	rm -f *.o
+	rm -f *.a
+	rm -f rats.txt lint.txt
+
+realclean: clean
+	rm Makefile
+
+.PHONY: clean uninstall install all secreports tags doc realclean
