@@ -30,6 +30,8 @@ realclean: clean distclean
 	-rm configure
 	-rm Makefile
 
+dist: $(distdir).tar.gz
+
 $(distdir).tar.gz: $(distdir)
 	tar czf $(distdir).tar.gz $(distdir)
 	rm -r $(distdir)

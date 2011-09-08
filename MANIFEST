@@ -7,7 +7,10 @@ doc/libdaemon.ltx
 MANIFEST
 Makefile.in
 configure
+configure.ac
 distcp.sh
 README
 TODO
+autogen.sh
+install-sh
 
