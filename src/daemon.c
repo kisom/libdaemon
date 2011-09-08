@@ -1,15 +1,16 @@
-/**************************************************************************
- * daemon.c                                                               *
- * 4096R/B7B720D6  "Kyle Isom <coder@kyleisom.net>"                       *
- * 2011-02-10                                                             *
- *                                                                        *
- * libdaemon: devio.us C library to facilitate daemonising                *
- *                                                                        *
- * this is a small C library providing a few functions to make creating   *
- * daemons under OpenBSD much easier. It is OpenBSD specific and will     *
- * not compile under Linux. See the header file for documentation.        *
- *                                                                        *
- **************************************************************************/
+/****************************************************************************
+ * daemon.c                                                                 *
+ * 4096R/B7B720D6  "Kyle Isom <coder@kyleisom.net>"                         *
+ * license: ISC / public domain dual-licensed - see the header or LICENSE   *
+ * created: 2011-02-10                                                      *
+ * updated: 2011-09-08                                                      *
+ *                                                                          *
+ * libdaemon: devio.us C library to facilitate daemonising                  *
+ *                                                                          *
+ * this is a small C library providing a few functions to make creating     *
+ * daemons much easier.                                                     *
+ *                                                                          *
+ ****************************************************************************/
 
 #ifdef _LINUX_SOURCE
 #include <sys/file.h>
