@@ -5,6 +5,7 @@ AC_PREREQ([2.62])
 AC_INIT([libdaemon], [2.1], [coder@kyleisom.net])
 AC_CONFIG_SRCDIR([src/daemon.c])
 AC_CHECK_HEADERS
+AC_CANONICAL_SYSTEM
 
 if test "$(uname -s)" = "Linux" ; then
     AC_SUBST(LIBDAEMON_LINUX, [-D_LINUX_SOURCE])
@@ -17,3 +18,4 @@ AC_PROG_CC
 AC_PROG_INSTALL
 AC_OUTPUT
     
+echo "target os: ${target_os}"
