@@ -32,6 +32,9 @@ clean: mostlyclean
 %.pdf: %.ltx
 	$(PDFLATEX) $<
 
+.ltx.pdf:
+	$(PDFLATEX) $<
+
 realclean: clean
 	rm Makefile
 
