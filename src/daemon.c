@@ -45,20 +45,29 @@ static int  daemon_gen_pidfile(int);
 /* begin function definitions */
 
 int 
-daemonise(char *d_name, uid_t run_uid, gid_t run_gid) 
+daemonise(char *vardirbase, uid_t run_uid, gid_t run_gid) 
 {
+    extern char *__progname;
     char vardir[LIBDAEMON_FILENAME_MAX];
     struct stat vd_stat;        /* stat struct to test for directory         */
     int fd;                     /* file descriptor when redirecting I/O      */
+    int must_free_vardirbase;   /* should i free vardirbase?                 */
 
-    /* truncating names may have unintended effects */
-    if (strlen(d_name) > LIBDAEMON_D_NAME_MAX_LEN) 
-        return EXIT_FAILURE;
+    if (NULL == vardirbase) {
+        vardirbase = strdup(LIBDAEMON_BASE_RUNDIR);
+        must_free_vardirbase = 1;
+        if (NULL == vardirbase)
+            return EXIT_FAILURE;
+    }
+    else
+        must_free_vardirbase = 0;
 
     /* build strings */
-    LIBDAEMON_STRCPY(pname, d_name, LIBDAEMON_D_NAME_MAX_LEN);
+    LIBDAEMON_STRCPY(pname, __progname, LIBDAEMON_D_NAME_MAX_LEN);
     snprintf(vardir, LIBDAEMON_FILENAME_MAX, "%s/%s/", 
-             LIBDAEMON_BASE_RUNDIR, pname);
+             vardirbase, pname);
+    if (1 == must_free_vardirbase)
+        free(vardirbase);
 
     /* test to make sure we aren't already running */
     fd = daemon_gen_pidfile(LIBDAEMON_PIDF_TEST);
@@ -70,10 +79,13 @@ daemonise(char *d_name, uid_t run_uid, gid_t run_gid)
         run_uid = getuid();
     if (-1 == run_gid)
         run_gid = getgid();
+    syslog(LOG_INFO, "%s: attempting to daemonise as %u:%u\n", 
+           __progname, (unsigned int) run_uid, (unsigned int) run_gid);
     if (0 != setreuid(run_uid, run_uid))
         return EXIT_FAILURE;
     else if (0 != setregid(run_gid, run_gid))
         return EXIT_FAILURE;
+    syslog(LOG_INFO, "%s: setting new privileges succeeds.", __progname);
 
     /* exit if already a daemon */
     if (getppid() == 0) 

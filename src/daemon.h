@@ -74,7 +74,7 @@
  *      by default, the daemonised process may be gracefully shutdown by
  *      sending the process the signal SIGUSR1.
  */
-int daemonise(char *d_name, uid_t run_uid, gid_t run_gid);
+int daemonise(char *, uid_t, gid_t);
 
 /*
  * daemon_set_logfile: set the daemon's logfile
