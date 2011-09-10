@@ -1,0 +1,6 @@
+libdaemon's API is currently in flux as I experiment with how best to
+implement certain functionality. If you desire the old API, and don't care
+that it has to be run with root privileges (which it will drop), grab the
+tarball from the github project page's file downloads section.
+
+you have been warned.
