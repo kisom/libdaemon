@@ -1,6 +1,6 @@
 AC_PREREQ([2.62])
 AC_INIT([libdaemon], [2.2alpha], [coder@kyleisom.net])
-AM_INIT_AUTOMAKE([silent-rules])
+AM_INIT_AUTOMAKE
 AM_SILENT_RULES
 AC_CONFIG_SRCDIR([src/daemon.c])
 AC_CHECK_HEADERS
