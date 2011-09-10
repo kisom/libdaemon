@@ -1,4 +1,4 @@
-dist_LIBRARIES = libdaemon.a
+lib_LIBRARIES = libdaemon.a
+include_HEADERS = daemon.h
 libdaemon_a_SOURCES = daemon.c daemon.h
-dist_libdaemon_a_HEADERS = daemon.h
 
