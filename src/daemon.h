@@ -34,6 +34,8 @@
 #ifndef __LIBDAEMON_H
 #define __LIBDAEMON_H
 
+#include <unistd.h>
+
 #define DEBUG                             1
 
 /* permission defines */
@@ -57,9 +59,9 @@
                                                          * presence of pid    *
                                                          * file               */
 #ifdef _LINUX_SOURCE
-#define STRCPY      strncpy
+#define LIBDAEMON_STRCPY                strncpy
 #else
-#define STRCPY      strlcpy
+#define LIBDAEMON_STRCPY                strlcpy
 #endif
 /* 
  * daemonise: daemonise a program

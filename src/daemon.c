@@ -56,7 +56,7 @@ daemonise(char *d_name, uid_t run_uid, gid_t run_gid)
         return EXIT_FAILURE;
 
     /* build strings */
-    STRCPY(pname, d_name, LIBDAEMON_D_NAME_MAX_LEN);
+    LIBDAEMON_STRCPY(pname, d_name, LIBDAEMON_D_NAME_MAX_LEN);
     snprintf(vardir, LIBDAEMON_FILENAME_MAX, "%s/%s/", 
              LIBDAEMON_BASE_RUNDIR, pname);
 
@@ -67,9 +67,9 @@ daemonise(char *d_name, uid_t run_uid, gid_t run_gid)
 
     /* drop privileges */
     if (-1 == run_uid) 
-        run_uid = get_uid();
+        run_uid = getuid();
     if (-1 == run_gid)
-        run_gid = get_gid();
+        run_gid = getgid();
     if (0 != setreuid(run_uid, run_uid))
         return EXIT_FAILURE;
     else if (0 != setregid(run_gid, run_gid))
