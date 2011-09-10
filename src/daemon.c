@@ -67,9 +67,9 @@ daemonise(char *d_name, uid_t run_uid, gid_t run_gid)
 
     /* drop privileges */
     if (-1 == run_uid) 
-        run_uid = LIBDAEMON_DEFAULT_UID;
+        run_uid = get_uid();
     if (-1 == run_gid)
-        run_gid = LIBDAEMON_DEFAULT_GID;
+        run_gid = get_gid();
     if (0 != setreuid(run_uid, run_uid))
         return EXIT_FAILURE;
     else if (0 != setregid(run_gid, run_gid))
