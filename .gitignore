@@ -3,4 +3,8 @@
 *.swp
 depcomp
 missing
+aclocal.m4
+config.guess
+config.sub
+configure
 
