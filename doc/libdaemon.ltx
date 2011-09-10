@@ -38,10 +38,12 @@ logs. The daemon may be gracefully shutdown by sending the daemon the signal
 
 \subsection*{daemonise: daemonise a program}
 \begin{description}
-    \item[Prototype:] \verb|int daemonise(char *)|
+    \item[Prototype:] \verb|int daemonise(char *, uid_t, gid_t)|
     \item[Arguments:]
         \begin{description}
-            \item[char *d\_name:] contains the name of the daemon
+            \item[char *vardirbase:] contains the path to the base vardir
+            \item[uid\_t run\_uid:] contains the uid to run as
+            \item[gid\_t run\_gid:] contains the gid to run as
         \end{description}
     \item[Returns:] 
         \begin{description}
@@ -51,8 +53,9 @@ logs. The daemon may be gracefully shutdown by sending the daemon the signal
     \item[Notes:] there are several reasons why the program might not be able
     to daemonise. One of the most common is that a copy of the daemon is 
     already running, or the daemon doesn't have the appropriate permissions.
-    By default, the daemon runs as \verb|root:daemon| and requires the ability 
-    to create \verb|/var/run/<daemon name>/| and write files in that directory.
+    By default, the daemon runs as the current user and requires the ability 
+    to create \verb|vardirbase/<daemon name>/| and write files in that 
+    directory.
 \end{description}
 
 \subsection*{daemon\_set\_logfile: set the daemon's logfile}
@@ -67,8 +70,11 @@ logs. The daemon may be gracefully shutdown by sending the daemon the signal
             calling code must ensure the directory component exists.
         \end{description}
     \item[Returns:]
-        \begin{description} \item[EXIT\_SUCCESS:] the logfile was successfully set. If not logging to syslog, this means the daemon now has an open file descriptor for the logfile that remains open until the daemon is
-            shutdown.
+        \begin{description} 
+            \item[EXIT\_SUCCESS:] the logfile was successfully 
+              set. If not logging to syslog, this means the daemon now has an 
+              open file descriptor for the logfile that remains open until the 
+              daemon is shutdown.
             \item[EXIT\_FAILURE:] the logfile could not be opened.  Another 
             point of failure is the case where the daemon does not have the 
             appropriate permissions to open the logfile (or cannot open the 
@@ -146,8 +152,8 @@ main(int argc, char **argv)
 {
     double lavg[1];         /* load average */
     
-    /* daemonise the program */
-    if (EXIT_SUCCESS != daemonise("testd") {
+    /* daemonise the program: use /var/run/testd and run as daemon:bin  */
+    if (EXIT_SUCCESS != daemonise(NULL, 1, 1) {
         syslog(LOG_INFO, "error daemonising!\n");
         return EXIT_FAILURE;
     }   
