@@ -213,12 +213,14 @@ daemon_log(int log_level, char *msg)
 {
     if (-1 == log_level)   
         log_level = LOG_INFO;
-
-    if (-1 == daemon_logfd)     /* as mentioned in daemon_set_logfile(), -1   */
-        syslog(log_level, msg); /*      indicates we should log to syslog(3). */
+    /* as mentioned in daemon_set_logfile(), -1   */
+    /*      indicates we should log to syslog(3). */
+    if (-1 == daemon_logfd)            
+        syslog(log_level, "%s", msg);   
     else {
         lseek(daemon_logfd, 0, SEEK_END);
-        write(daemon_logfd, msg, strlen(msg));
+        if (0 == write(daemon_logfd, msg, strlen(msg)))
+            ;   /* do nothing, fixes compiler warning */
     }
 }
 
@@ -237,9 +239,10 @@ daemon_vlog(int log_level, char *msg, ...)
         log_level = LOG_INFO;
 
     if (-1 == daemon_logfd)
-        syslog(log_level, logmsg);
+        syslog(log_level, "%s", logmsg);
     else
-        write(daemon_logfd, logmsg, LIBDAEMON_LOG_MAX);
+        if (0 == write(daemon_logfd, logmsg, LIBDAEMON_LOG_MAX))
+            ;   /* do nothing - return value is inconsequential */
 
 }
 
