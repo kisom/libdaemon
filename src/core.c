@@ -16,8 +16,6 @@
 #include <unistd.h>
 
 #include "daemon.h"
-#include "dconfig.h"
-
 
 /* this is the primary configuration struct for the daemon */
 static struct libdaemon_config  *cfg;
