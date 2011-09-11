@@ -1,3 +1,6 @@
+WARNING
+libdaemon is currently in the middle of a rewrite to a new architecure.
+
 libdaemon's API is currently in flux as I experiment with how best to
 implement certain functionality. If you desire the old API, and don't care
 that it has to be run with root privileges (which it will drop), grab the
