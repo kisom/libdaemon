@@ -33,7 +33,6 @@
 /* global vars */
 static int daemon_logfd;                                /* logfile fd        */
 static int daemon_pidfd;                                /* pidfile fd        */
-static char pname[LIBDAEMON_D_NAME_MAX_LEN + 1];        /* process name      */
 
 extern int errno;
                                             
@@ -63,9 +62,8 @@ daemonise(char *vardirbase, uid_t run_uid, gid_t run_gid)
         must_free_vardirbase = 0;
 
     /* build strings */
-    LIBDAEMON_STRCPY(pname, __progname, LIBDAEMON_D_NAME_MAX_LEN);
     snprintf(vardir, LIBDAEMON_FILENAME_MAX, "%s/%s/", 
-             vardirbase, pname);
+             vardirbase, __progname);
     if (1 == must_free_vardirbase)
         free(vardirbase);
 
@@ -112,7 +110,8 @@ daemonise(char *vardirbase, uid_t run_uid, gid_t run_gid)
     umask(0017);
 
     /* chdir to root */
-    chdir("/");
+    if (-1 == chdir("/"))
+        return EXIT_FAILURE;
 
      /* close all file descriptors */
 #ifdef _LINUX_SOURCE
@@ -124,8 +123,10 @@ daemonise(char *vardirbase, uid_t run_uid, gid_t run_gid)
 
     /* redirect I/O to /dev/null for security and stability */
     fd = open("/dev/null", O_RDWR);
-    dup(fd);
-    dup(fd);
+
+    /* yes, we really want to dup twice */
+    if ((-1 == dup(fd)) || (-1 == dup(fd)))
+        return EXIT_FAILURE;
 
     /* 
      * obtain a lock - not getting one means either system error or 
@@ -157,6 +158,7 @@ daemonise(char *vardirbase, uid_t run_uid, gid_t run_gid)
 static void 
 dedaemonise(int sig) 
 {
+    extern char *__progname;
     char vardir[LIBDAEMON_FILENAME_MAX];
     char pidfile[LIBDAEMON_FILENAME_MAX];  
 
@@ -165,8 +167,8 @@ dedaemonise(int sig)
         return;
  
     snprintf(vardir, LIBDAEMON_FILENAME_MAX, "%s/%s/", 
-             LIBDAEMON_BASE_RUNDIR, pname);
-    snprintf(pidfile, LIBDAEMON_FILENAME_MAX, "%s%s.pid", vardir, pname);
+             LIBDAEMON_BASE_RUNDIR, __progname);
+    snprintf(pidfile, LIBDAEMON_FILENAME_MAX, "%s%s.pid", vardir, __progname);
 
     /* release lock */
     close(daemon_pidfd);
@@ -244,6 +246,7 @@ daemon_vlog(int log_level, char *msg, ...)
 static int 
 daemon_gen_pidfile(int flags)
 {
+    extern char *__progname;
     int fd;                                     /* descriptor for pidfile     */
     int oflags;                                 /* flags to open(2)           */
     char pidfile[LIBDAEMON_FILENAME_MAX];       /* filename for pidfile       */
@@ -255,7 +258,7 @@ daemon_gen_pidfile(int flags)
 
     /* fill in buffers */
     snprintf(pidfile, LIBDAEMON_FILENAME_MAX, "%s/%s/%s.pid", 
-             LIBDAEMON_BASE_RUNDIR, pname, pname);
+             LIBDAEMON_BASE_RUNDIR, __progname, __progname);
     snprintf(pid, LIBDAEMON_PID_BUF, "%u\n", (unsigned int) getpid());
 
     if (flags & LIBDAEMON_PIDF_TEST)
