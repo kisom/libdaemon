@@ -1,0 +1,86 @@
+\input texinfo   @c -*-texinfo-*-
+@comment $Id: GNU-Sample-Texts.html,v 1.7 2008/09/19 15:44:59 karl Exp $
+@comment %**start of header
+@setfilename libdaemon.info
+@include version.texi
+@settitle libdaemon @value{VERSION}
+@syncodeindex pg cp
+@comment %**end of header
+@copying
+This manual is for libdaemon, a small and somewhat portable C daemonisation
+library that runs under OpenBSD and Linux.
+
+Copyright @copyright{} 2011 Kyle Isom <@email{coder@@kyleisom.net}>
+
+@quotation
+This document is released under a dual license. These two licenses are the 
+public domain and a Creative Commons Attribution-ShareAlike 3.0 Unported 
+License. The purpose of this dual-license is to attribute you, the end user,
+to use this documentation for whatever purpose you wish. As such, you, the
+end user, are free to select either license at will.
+
+This document is released into the public domain.
+
+This work is licensed under the Creative Commons Attribution-ShareAlike 3.0 
+Unported License. To view a copy of this license, visit 
+http://creativecommons.org/licenses/by-sa/3.0/ or send a letter to Creative 
+Commons, 444 Castro Street, Suite 900, Mountain View, California, 94041, USA.
+@end quotation
+@end copying
+
+@dircategory Texinfo documentation system
+@direntry
+* introduction: (intro)Introduction to libdaemon
+@end direntry
+
+@titlepage
+@title libdaemon
+@subtitle for version @value{VERSION}, @value{UPDATED}
+@author Kyle Isom (@email{coder@@kyleisom.net})
+@page
+@vskip 0pt plus 1filll
+@insertcopying
+@end titlepage
+
+@contents
+
+@ifnottex
+@node Top
+@top libdaemon
+
+This manual is for libdaemon (version @value{VERSION}, @value{UPDATED}).
+@end ifnottex
+
+@menu
+* A Quick Introduction::
+* Things You Should Know::
+* Manual Copyright
+* Index::
+@end menu
+
+
+@node A Quick Introduction
+@chapter A Quick Introduction
+@direntry
+* introduction: (intro)Introduction to libdaemon
+@end direntry
+@pindex intro
+@cindex introduction to @command{libdaemon}
+
+Libdaemon is a minimal and somewhat portable daemonisation library that
+works under OpenBSD and Linux. It may also run under FreeBSD and NetBSD,
+but this has not been tested.
+
+
+@node Creative Commons Attribution-ShareAlike 3.0 License
+@appendix Creative Commons Attribution-ShareAlike 3.0 License
+
+@include cc.texi
+
+
+@node Index
+@unnumbered Index
+
+@printindex cp
+
+@bye
