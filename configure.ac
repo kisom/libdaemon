@@ -8,7 +8,7 @@ AM_INIT_AUTOMAKE
 AM_SILENT_RULES([yes])
 AC_CONFIG_SRCDIR([src/core.c])
 AC_CHECK_HEADERS
-AC_MSG_CHECKING([canonical host])
+AC_TYPE_UID_T
 AC_CANONICAL_HOST
 
 dnl default is not to build for lunix
