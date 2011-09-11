@@ -30,12 +30,26 @@
 #ifndef __LIBDAEMON_DAEMON_H
 #define __LIBDAEMON_DAEMON_H
 
-int     init_daemon(void);
-int     run_daemon(void);
-int     destroy_daemon(void);
-int     daemon_setlog(char *logfile);
-int     daemon_log(int, char *);
-int     daemon_vlog(int, char *, ...);
+#include <sys/types.h>
+
+struct libdaemon_config {
+        char    *rundir;
+        char    *pidfile;
+        char    *logfile;
+        int      logfd;
+
+        uid_t   run_uid;
+        gid_t   run_gid;
+
+};
+
+int                      init_daemon(char *, uid_t, gid_t);
+int                      run_daemon(void);
+int                      destroy_daemon(void);
+int                      daemon_setlog(char *logfile);
+int                      daemon_log(int, char *);
+int                      daemon_vlog(int, char *, ...);
+struct libdaemon_config *daemon_getconfig(void);
 
 
 #endif
