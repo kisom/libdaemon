@@ -1,5 +1,5 @@
 AC_PREREQ([2.62])
-AC_INIT([libdaemon], [2.2alpha], [coder@kyleisom.net])
+AC_INIT([libdaemon], [2.3alpha], [coder@kyleisom.net])
 AM_INIT_AUTOMAKE
 AM_SILENT_RULES([yes])
 AC_CONFIG_SRCDIR([src/daemon.c])
