@@ -101,7 +101,7 @@ init_daemon(char *rundir, uid_t run_uid, gid_t run_gid)
                  if (-1 == mkdir(rundir, 00700))
                     goto init_exit;
                 else
-                    errno = 0
+                    errno = 0;
             else
                 goto init_exit;
 
