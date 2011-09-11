@@ -54,16 +54,14 @@ This manual is for libdaemon (version @value{VERSION}, @value{UPDATED}).
 @menu
 * A Quick Introduction::
 * Things You Should Know::
-* Manual Copyright
+* Manual Copyright::
 * Index::
 @end menu
 
 
 @node A Quick Introduction
 @chapter A Quick Introduction
-@direntry
-* introduction: (intro)Introduction to libdaemon
-@end direntry
+
 @pindex intro
 @cindex introduction to @command{libdaemon}
 
@@ -71,9 +69,12 @@ Libdaemon is a minimal and somewhat portable daemonisation library that
 works under OpenBSD and Linux. It may also run under FreeBSD and NetBSD,
 but this has not been tested.
 
+@node Things You Should Know
+@chapter Things You Should Know
+There are a few caveats to using libdaemon.
 
-@node Creative Commons Attribution-ShareAlike 3.0 License
-@appendix Creative Commons Attribution-ShareAlike 3.0 License
+@node Manual Copyright
+@appendix Manual Copyright
 
 @include cc.texi
 

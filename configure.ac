@@ -19,7 +19,7 @@ else
     AC_MSG_NOTICE([Configuring for BSD compatibility.])
 fi
 
-AC_CONFIG_FILES(src/Makefile Makefile)
+AC_CONFIG_FILES(doc/Makefile src/Makefile Makefile)
 AC_CONFIG_HEADERS(src/config.h)
 AC_PROG_CC
 AC_PROG_INSTALL

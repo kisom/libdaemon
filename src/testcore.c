@@ -62,7 +62,7 @@ test_destroy()
         int retval;
         printf("[+] destroy_daemon():\n");
         retval = destroy_daemon();
-        printf("[+] destroy retval: %d\n\n", retval);
+        printf("\t[+] destroy retval: %d\n\n", retval);
 
         return retval;
 }
@@ -73,7 +73,7 @@ test_init()
         int retval;
         printf("[+] testing init_daemon(NULL, 0, 0)\n");
         retval = init_daemon(NULL, 0, 0);
-        printf("[+] init retval: %d\n\n", retval);
+        printf("\t[+] init retval: %d\n\n", retval);
 
         return retval;
 }
