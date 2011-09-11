@@ -1,0 +1,5 @@
+2011-09-11: begin major rework of daemon code. i originally began libdaemon
+            as an openbsd library. with its expansion into linux, and to
+            support future operating systems, i've decided to take a look
+            at reengineering the code.
+
