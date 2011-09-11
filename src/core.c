@@ -3,6 +3,12 @@
  * author: kyle isom <coder@kyleisom.net>                                   *
  * created: 2011-09-11                                                      *
  * modified: 2011-09-11                                                     *
+ *                                                                          *
+ * core and public functionality of libdaemon, a small C library to         *
+ * facilitate daemonising.                                                  *
+ *                                                                          *
+ * it is released under an ISC / public domain dual-license; see any of the *
+ * header files or the file "LICENSE" (or COPYING) under the project root.  *
  ****************************************************************************/
 #include <config.h>
 
@@ -20,6 +26,9 @@
 /* this is the primary configuration struct for the daemon */
 static struct libdaemon_config  *cfg;
 extern char                     *__progname;
+
+/* private daemon functions */
+static int                      dedaemonise;
 
 int
 init_daemon(char *rundir, uid_t run_uid, gid_t run_gid)
@@ -91,6 +100,8 @@ init_daemon(char *rundir, uid_t run_uid, gid_t run_gid)
                  */
                  if (-1 == mkdir(rundir, 00700))
                     goto init_exit;
+                else
+                    errno = 0
             else
                 goto init_exit;
 
