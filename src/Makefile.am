@@ -1,9 +1,8 @@
 lib_LIBRARIES = libdaemon.a
 include_HEADERS = daemon.h
-check_PROGRAMS = testd 
-libdaemon_a_SOURCES = core.o 
-testd_SOURCES = testd.c
-testd_LDADD = libdaemon.a
-
-CLEANFILES = *.o *.a
+check_PROGRAMS = testcore
+libdaemon_a_SOURCES = core.c 
+testcore_SOURCES = testcore.c
+testcore_LDADD = libdaemon.a
+testcore_CFLAGS = -O0
 
