@@ -30,7 +30,7 @@ main(int argc, char **argv)
     result = EXIT_FAILURE;
 
     /* daemonise the program */
-    if (EXIT_SUCCESS != daemonise("testd")) {
+    if (EXIT_SUCCESS != daemonise("./", -1, -1)) {
         syslog(LOG_INFO, "error daemonising!\n");
         return EXIT_FAILURE;
     }

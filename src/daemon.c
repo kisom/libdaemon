@@ -39,7 +39,8 @@ extern int errno;
 
 /* function prototypes for internal-only functions */
 static void dedaemonise(int);
-static int  daemon_gen_pidfile(int);
+static int  daemon_gen_pidfile(char *, int);
+char vardir[LIBDAEMON_FILENAME_MAX];
 
 /* begin function definitions */
 
@@ -47,7 +48,6 @@ int
 daemonise(char *vardirbase, uid_t run_uid, gid_t run_gid) 
 {
     extern char *__progname;
-    char vardir[LIBDAEMON_FILENAME_MAX];
     struct stat vd_stat;        /* stat struct to test for directory         */
     int fd;                     /* file descriptor when redirecting I/O      */
     int must_free_vardirbase;   /* should i free vardirbase?                 */
@@ -62,13 +62,13 @@ daemonise(char *vardirbase, uid_t run_uid, gid_t run_gid)
         must_free_vardirbase = 0;
 
     /* build strings */
-    snprintf(vardir, LIBDAEMON_FILENAME_MAX, "%s/%s/", 
-             vardirbase, __progname);
+    snprintf(vardir, LIBDAEMON_FILENAME_MAX, "%s", 
+             vardirbase);
     if (1 == must_free_vardirbase)
         free(vardirbase);
 
     /* test to make sure we aren't already running */
-    fd = daemon_gen_pidfile(LIBDAEMON_PIDF_TEST);
+    fd = daemon_gen_pidfile(vardir, LIBDAEMON_PIDF_TEST);
     if (EXIT_FAILURE == fd)
         return EXIT_FAILURE;
 
@@ -132,7 +132,7 @@ daemonise(char *vardirbase, uid_t run_uid, gid_t run_gid)
      * obtain a lock - not getting one means either system error or 
      * the daemon is already running. 
      */
-    daemon_pidfd = daemon_gen_pidfile(0x0);
+    daemon_pidfd = daemon_gen_pidfile(vardir, 0x0);
 
     if (-1 == daemon_pidfd) {
         syslog(LOG_INFO, "gen_pid failure");
@@ -247,7 +247,7 @@ daemon_vlog(int log_level, char *msg, ...)
 }
 
 static int 
-daemon_gen_pidfile(int flags)
+daemon_gen_pidfile(char *vardirbase, int flags)
 {
     extern char *__progname;
     int fd;                                     /* descriptor for pidfile     */
@@ -261,8 +261,10 @@ daemon_gen_pidfile(int flags)
 
     /* fill in buffers */
     snprintf(pidfile, LIBDAEMON_FILENAME_MAX, "%s/%s/%s.pid", 
-             LIBDAEMON_BASE_RUNDIR, __progname, __progname);
+             vardirbase, __progname, __progname);
     snprintf(pid, LIBDAEMON_PID_BUF, "%u\n", (unsigned int) getpid());
+
+    syslog(LOG_INFO, "attempting to gen pidfile %s", pidfile);
 
     if (flags & LIBDAEMON_PIDF_TEST)
         oflags = (O_RDONLY | O_EXCL);
@@ -270,22 +272,27 @@ daemon_gen_pidfile(int flags)
         oflags = (O_RDWR | O_TRUNC | O_CREAT);
 
     fd = open(pidfile, oflags, 0600);
-    if ((flags & LIBDAEMON_PIDF_TEST) && (-1 == fd)) 
+    if ((flags & LIBDAEMON_PIDF_TEST) && (-1 == fd))  {
+        syslog(LOG_WARNING, "line 273");
         return -1;
+    }
 
     if (flags & LIBDAEMON_PIDF_TEST) {
         close(fd);
-        return EXIT_FAILURE;
+        syslog(LOG_WARNING, "line 277");
+        return -1;
     }
 
     if (EXIT_SUCCESS != flock(fd, LOCK_EX | LOCK_NB)) 
         return -1;
 
-    if (-1 == ftruncate(fd, 0))
-        return -1;
+    if (-1 == ftruncate(fd, 0)) 
+        syslog(LOG_WARNING, "line 289");
 
-    if (-1 == write(fd, &pid, strlen(pid)))
+    if (-1 == write(fd, &pid, strlen(pid))) {
+        syslog(LOG_WARNING, "line 294");
         return -1;
+    }
 
     return fd;
 }
