@@ -1,23 +1,26 @@
 AC_PREREQ([2.62])
-AC_INIT([libdaemon], [2.3alpha], [coder@kyleisom.net])
+AC_INIT([libdaemon], 
+        [3.0], 
+        [coder@kyleisom.net], 
+        [], 
+        [http://www.brokenlcd.net/code/libdaemon/])
 AM_INIT_AUTOMAKE
 AM_SILENT_RULES([yes])
-AC_CONFIG_SRCDIR([src/daemon.c])
+AC_CONFIG_SRCDIR([src/core.c])
 AC_CHECK_HEADERS
 AC_MSG_CHECKING([canonical host])
 AC_CANONICAL_HOST
 
 dnl default is not to build for lunix
-AC_SUBST(LIBDAEMON_LINUX, [-U_LINUX_SOURCE])
-
 if test "x${host_os%-gnu}" = xlinux; then
     AC_MSG_NOTICE([Linux system detected, configuring for Linux compatability.])
-    AC_SUBST(LIBDAEMON_LINUX, [-D_LINUX_SOURCE])
+    AC_DEFINE([_LINUX_SOURCE], [], [build for linux host])
 else
     AC_MSG_NOTICE([Configuring for BSD compatibility.])
 fi
 
 AC_CONFIG_FILES(src/Makefile Makefile)
+AC_CONFIG_HEADERS(src/config.h)
 AC_PROG_CC
 AC_PROG_INSTALL
 AC_PROG_RANLIB
