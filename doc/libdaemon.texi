@@ -39,6 +39,7 @@ Commons, 444 Castro Street, Suite 900, Mountain View, California, 94041, USA.
 @author Kyle Isom (@email{coder@@kyleisom.net})
 @page
 @vskip 0pt plus 1filll
+@paragraphindent 0
 @insertcopying
 @end titlepage
 
@@ -68,6 +69,61 @@ This manual is for libdaemon (version @value{VERSION}, @value{UPDATED}).
 Libdaemon is a minimal and somewhat portable daemonisation library that
 works under OpenBSD and Linux. It may also run under FreeBSD and NetBSD,
 but this has not been tested.
+
+Libdaemon is distributed with the @code{daemon.h} header which must be included
+to make use of the library, as well as linking to @code{libdaemon.a}.
+
+@section Set up and daemonising
+The first call to Libdaemon should be a call to @code{init_daemon}. This has
+the prototype
+@example
+int                      init_daemon(char *, uid_t, gid_t);
+@end example
+
+The first @code{char *} should be the rundir variable (see 
+``The run directory'')
+(@xref{Things You Should Know, , The run directory, libdaemon, 
+libdaemon}),
+which may be @code{NULL} to have Libdaemon generate a sane default. The second
+and third arguments are the user and group IDs to run as, respectively. If set
+to 0, the value will be the same as the user running the daemon. 
+@code{init_daemon} returns @code{EXIT_SUCCESS} if all went well, and the 
+configuration struct (@code{struct libdaemon_config} in @code{daemon.h}) may
+be accessed using @code{daemon_getconfig(void)}. Of note is that a 
+@code{struct libdaemon_config} struct has the member @code{char *rundir}, which
+may come in handy later. See ``The libdaemon_config struct''.
+
+@section The libdaemon_config struct
+The definition for @code{struct libdaemon_config} is this:
+@example
+struct libdaemon_config @{
+        char    *rundir;
+        char    *pidfile;
+        char    *logfile;
+        int      logfd;
+        uid_t   run_uid;
+        gid_t   run_gid;
+
+@};
+@end example
+
+@code{char *rundir} is the run directory the daemon is using (see The run 
+directory). This can be used for future calls; for example, the libdaemon core
+uses @code{static struct libdaemon_config *cfg}, and passes @code{cfg->rundir}
+as the argument to several functions during the initialisation and run phases.
+
+@code{char *pidfile} is the file containing the daemon's PID. The library will
+create the file @code{cfg->rundir/__progname.pid}; this value is stored in the
+configuration struct for future use (although a call to @code{getpid} could 
+also be used).
+
+@code{char *logfile} is the file the daemon logs (as opposed to using the
+@code{syslog} interface). Correspondingly, @code{int logfd} is the file
+descriptor for the logfile.
+
+@code{uid_t run_uid} and @code{gid_t run_gid} contain the UID and GID the 
+daemon was run as, and are used internally for sanity checks. You may use these
+or, just as easily, @code{getuid()} or @code{getgid()}.
 
 @node Things You Should Know
 @chapter Things You Should Know
