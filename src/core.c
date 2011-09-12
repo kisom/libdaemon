@@ -33,6 +33,13 @@ extern char                     *__progname;
 /* private daemon functions */
 static void                      dedaemonise(int);
 
+/* external functions */
+extern char    *get_default_rundir(void);
+extern int      test_rundir_access(char *);
+extern int      gen_pidfile(char *);
+extern int      destroy_pidfile(char *);
+
+
 int
 init_daemon(char *rundir, uid_t run_uid, gid_t run_gid)
 {
@@ -165,7 +172,8 @@ run_daemon(void)
         umask((mode_t)0027);
 
         /* Change the working directory to filesystem root. */
-        chdir("/");
+        if (-1 == chdir("/"))
+            goto run_exit;
 
         /* Close all file descriptors. */
         #ifdef _LINUX_SOURCE
