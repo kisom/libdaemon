@@ -17,8 +17,10 @@
 #include <errno.h>
 #include <fcntl.h>
 #include <limits.h>
+#include <signal.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <syslog.h>
 #include <unistd.h>
 
 #include "daemon.h"
@@ -29,7 +31,7 @@ static struct libdaemon_config  *cfg;
 extern char                     *__progname;
 
 /* private daemon functions */
-static int                      dedaemonise(void);
+static void                      dedaemonise(int);
 
 int
 init_daemon(char *rundir, uid_t run_uid, gid_t run_gid)
@@ -52,6 +54,7 @@ init_daemon(char *rundir, uid_t run_uid, gid_t run_gid)
             run_uid = getuid();
 
         if (0 == run_gid)
+            run_gid = getgid();
 
         if (NULL == rundir) 
             rundir = get_default_rundir();
@@ -82,8 +85,8 @@ init_daemon(char *rundir, uid_t run_uid, gid_t run_gid)
     cfg->run_gid    = run_gid;
 
     snprintf(cfg->rundir, PATH_MAX, "%s", rundir);
+    libdaemon_do_kill = 0;
     retval = EXIT_SUCCESS;
-    errno = 0;
 
 init_exit:
         perror(__progname);
@@ -100,7 +103,7 @@ init_exit:
 int
 run_daemon(void)
 {
-        int retval;
+        int fd, retval;
         retval = EXIT_FAILURE;
 
         if (NULL == cfg) {
@@ -109,13 +112,92 @@ run_daemon(void)
             goto run_exit;
         }
 
+        /* ensure we aren't running already */
         if (EXIT_FAILURE == gen_pidfile(cfg->rundir)) {
             perror("gen_pidfile");
             goto run_exit;
         }
+        else
+            if (EXIT_FAILURE == destroy_pidfile(cfg->rundir)) {
+                perror("destroy_pidfile");
+                goto run_exit;
+            }
+
+        syslog(LOG_INFO, "attempting to daemonise as %u:%u...",
+               (unsigned int)cfg->run_uid, (unsigned int)cfg->run_gid);
+
+        /* attempt to drop privileges if required */
+        if ((cfg->run_uid != getuid()) || 
+            (0 != setreuid(cfg->run_uid, cfg->run_uid)))
+            goto run_exit;
+        if ((cfg->run_gid != getgid()) || 
+            (0 != setregid(cfg->run_gid, cfg->run_gid)))
+            goto run_exit;
+
+        /* If we are already daemonised, fail to redaemonise. */
+        if (0 == getppid()) {
+            retval = LIBDAEMON_DO_NOT_DESTROY;    
+            goto run_exit;
+        }
+
+        /* Fork to background and kill off the parent. */
+        if (0 != fork()) {
+            retval = LIBDAEMON_DO_NOT_DESTROY;    
+            goto run_exit;
+        }
+
+        /* Set session leader. */
+        setsid();
+
+        /* Fork again to prevent reacquisition of a controlling terminal. */
+        if (0 != fork()) {
+            retval = LIBDAEMON_DO_NOT_DESTROY;
+            goto run_exit;
+        }
+
+        /* Write the final pid to a file. */
+        if (EXIT_FAILURE == gen_pidfile(cfg->rundir)) {
+            perror("gen_pidfile");
+            goto run_exit;
+        }
+ 
+        /* Reset the umask to more secure permissions. */
+        umask((mode_t)0027);
+
+        /* Change the working directory to filesystem root. */
+        chdir("/");
+
+        /* Close all file descriptors. */
+        #ifdef _LINUX_SOURCE
+        if ((0 != close(0)) || (0 != close(1)) || (0 != close(2)))
+        #else
+        if (0 != closefrom(0))
+        #endif
+            goto run_exit;
+
+        /* We should redirect I/O to /dev/null for security and stability. */
+        fd = open("/dev/null", O_RDWR);
+        if (-1 == fd)
+            goto run_exit;
+        if ((-1 == dup(fd)) || (-1 == dup(fd)))
+            goto run_exit;
+        
+        /* Ignore certain signals and setup death knoll signal handler.  */
+        signal(SIGTTOU, SIG_IGN);   /* Ignore stop process via bg write. */
+        signal(SIGTTIN, SIG_IGN);   /* Ignore stop process via bg read.  */
+        signal(SIGTSTP, SIG_IGN);   /* Ignore stop process.              */
+
+        /* Catch death knoll as a signal to exit gracefully. */
+        signal(LIBDAEMON_DEATH_KNOLL, dedaemonise);
+
+
+        syslog(LOG_INFO, "daemonised!");
 
         retval = EXIT_SUCCESS;
+
 run_exit:
+        if (EXIT_FAILURE == retval)
+            perror("run_daemon");
 
         return retval;
 }
@@ -151,9 +233,21 @@ destroy_daemon(void)
         free(cfg);
         cfg = NULL;
 
-        retval = EXIT_SUCCESS;
-        errno = 0;
+        /* Restore stdin, stdout, and stderr. */
+        #ifdef _LINUX_SOURCE
+        if ((0 != close(0)) || (0 != close(1)) || (0 != close(2)))
+        #else
+        if (0 != closefrom(0))
+        #endif
+            goto destroy_exit;
+        
+        if ((-1 == open("/dev/stdin",  O_RDONLY))   ||
+            (-1 == open("/dev/stdout", O_WRONLY))   ||
+            (-1 == open("/dev/stdout", O_WRONLY)))
+            goto destroy_exit;
 
+        retval = EXIT_SUCCESS;
+        syslog(LOG_INFO, "successfully daedaemonised!");
 destroy_exit:
         
         return retval;
@@ -167,12 +261,10 @@ struct libdaemon_config
         return cfg;
 }
 
-int
-dedaemonise()
+void
+dedaemonise(int flags)
 {
-    int retval;
-
-    retval = EXIT_FAILURE;
-
-    return retval;
+    flags = 0;
+    syslog(LOG_INFO, "destroying daemon: %d", destroy_daemon());
+    exit(EXIT_SUCCESS);
 }
