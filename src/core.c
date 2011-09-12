@@ -183,9 +183,10 @@ destroy_daemon(void)
         cfg->pidfile = NULL;
         cfg->logfile = NULL;
 
-        if ((-1 == close(cfg->logfd)) && (EBADF != errno))
+        if ((cfg->logfd > 0) && (-1 == close(cfg->logfd)) && (EBADF != errno))
             goto destroy_exit;
 
+        free(cfg);
         cfg = NULL;
 
         retval = EXIT_SUCCESS;
@@ -203,4 +204,5 @@ struct libdaemon_config
 {
         return cfg;
 }
+
 
