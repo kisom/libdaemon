@@ -6,12 +6,31 @@
 static int      test_init(void);
 static int      test_run(void);
 static int      test_destroy(void);
+static void     test_battery(void);
 
 int 
-main()
+main(int argc, char **argv)
 {
-        struct libdaemon_config *cfg;
+        size_t i = 0;
+        int retval = EXIT_FAILURE;
+        int tests  = 1;
+
+        if (argc > 1)
+            tests = atoi(argv[1]);
+
+        for (i = 0; i < tests; ++i) {
+            printf("test #%d out of %d\n-----------------\n\n", (int)i, tests);
+            test_battery();
+        }
+
+        return retval;
+}
+
+void
+test_battery()
+{
         int retval;
+        struct libdaemon_config *cfg;
 
         /* ensure run before init fails */
         retval = test_run();
@@ -41,7 +60,6 @@ main()
         /* test destroy works again */
         retval = test_destroy();
 
-        return retval;
 }
 
 int 
