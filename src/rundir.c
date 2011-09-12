@@ -10,7 +10,7 @@
  * header files or the file "LICENSE" (or COPYING) under the project root.  *
  ****************************************************************************/
 
-
+#include <config.h>
 #ifdef _LINUX_SOURCE
 #include <sys/file.h>
 #endif
@@ -138,7 +138,8 @@ gen_pidfile(char *rundir)
         char *pidfile, *pidstr;
 
 
-        retval = EXIT_FAILURE;
+        retval  = EXIT_FAILURE;
+        pidfd   = -1;
         pidfile = NULL;
         pidstr  = NULL;
 
