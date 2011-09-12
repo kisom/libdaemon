@@ -8,6 +8,8 @@ static int      test_run(void);
 static int      test_destroy(void);
 static void     test_battery(void);
 
+extern char     *__progname;
+
 int 
 main(int argc, char **argv)
 {
@@ -19,7 +21,8 @@ main(int argc, char **argv)
             tests = atoi(argv[1]);
 
         for (i = 0; i < tests; ++i) {
-            printf("test #%d out of %d\n-----------------\n\n", (int)i, tests);
+            printf("test #%d out of %d\n-----------------\n\n", 
+                   (int)i + 1, tests);
             test_battery();
         }
 
@@ -50,14 +53,9 @@ test_battery()
 
         /* test run works */
         retval = test_run();
+        sleep(30);
 
         /* test destroy works */
-        retval = test_destroy();
-
-        /* test reinit works */
-        retval = test_init();
-
-        /* test destroy works again */
         retval = test_destroy();
 
 }
@@ -94,4 +92,11 @@ test_init()
         printf("\t[+] init retval: %d\n\n", retval);
 
         return retval;
+}
+
+void
+usage()
+{
+    fprintf(stderr, "Usage: %s [number of tests to run]\n", __progname);
+
 }
