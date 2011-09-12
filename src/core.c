@@ -22,6 +22,7 @@
 #include <unistd.h>
 
 #include "daemon.h"
+#include "rundir.h"
 
 /* this is the primary configuration struct for the daemon */
 static struct libdaemon_config  *cfg;
@@ -55,64 +56,19 @@ init_daemon(char *rundir, uid_t run_uid, gid_t run_gid)
             run_uid = getuid();
 
         if (0 == run_gid)
-            run_gid = getgid();
 
-        if (NULL == rundir) {
-            rundir = calloc(PATH_MAX, sizeof(char));
-            if (NULL == rundir)
-                goto init_exit;
-            else
+        if (NULL == rundir) 
+            rundir = get_default_rundir();
+            if (NULL != rundir)
                 free_rundir = 1;
-            
-            /* 
-             * It is expected that root has privileges to access /var/run.
-             * Otherwise, the code looks for ${HOME} as the rundir.
-             */
-            if (0 == run_uid)
-                snprintf(rundir, PATH_MAX, "/var/run/%s", __progname);
-            else {      /* braces not needed but clears up the code */
-                if (NULL == getenv("HOME"))
-                    snprintf(rundir, PATH_MAX, "/tmp/%s", __progname);
-                else
-                    snprintf(rundir, PATH_MAX, "%s/.%s", 
-                             getenv("HOME"), __progname);
-            }
-        }
-
-        testfile = calloc(PATH_MAX, sizeof(char));
-        if (NULL == testfile)
-            goto init_exit;
-
-        snprintf(testfile, PATH_MAX, "%s/%s.testfile", rundir, __progname);
-
-        if ((-1 == setreuid(run_uid, run_uid)) ||
-            (-1 == setregid(run_gid, run_gid)))
-            goto init_exit;
-
-        statres = stat(rundir, &rdst);
-        if (-1 == statres)
-            if (ENOENT == errno)
-                /* 
-                 * The top level for rundir is the only component of the path
-                 * that cannot exist, i.e. dirname rundir must exist. This 
-                 * follows from the behaviour /var/run/__progname/ : /var/run
-                 * is assumed to exist.
-                 */
-                 if (-1 == mkdir(rundir, 00700))
-                    goto init_exit;
-                else
-                    errno = 0;
-            else
+            else {
+                fprintf(stderr, "[!] rundir returned NULL!\n");
                 goto init_exit;
+            }
 
-        testfd = open(testfile, O_WRONLY | O_CREAT | O_EXCL, 
-                      S_IRUSR | S_IWUSR);
-        if (-1 == testfd)
+        if (-1 == test_rundir_access(rundir))
             goto init_exit;
-        else {
-            close(testfd);
-            unlink(testfile);
-        }
+
     /*
      * We wait until all the tests and sanity checks have passed before 
      * saving any of this to the configuration struct so as to ensure the
@@ -156,6 +112,13 @@ run_daemon(void)
             fprintf(stderr, "\tinit_daemon needs to be called first!\n");
             goto run_exit;
         }
+
+        if (EXIT_FAILURE == gen_pidfile(cfg->rundir)) {
+            perror("gen_pidfile");
+            goto run_exit;
+        }
+
+        retval = EXIT_SUCCESS;
 run_exit:
 
         return retval;
@@ -174,6 +137,9 @@ destroy_daemon(void)
             fprintf(stderr, "calling init_daemon.\n");
             goto destroy_exit;
         }
+
+        if (-1 == destroy_pidfile(cfg->rundir)) 
+            perror("attempting to unlink pidfile");
 
         free(cfg->rundir);
         free(cfg->pidfile);
