@@ -96,8 +96,7 @@ environment variable set, it will use @code{$@{HOME@}/.__progname} as the run
 directory. For example, if the @code{testd} program was run as a normal user 
 @code{kyle} with the @code{HOME} variable set, it would use 
 @code{/home/kyle/.testd}@footnote{This of course assumes that @code{$@{HOME@}} 
-expands to @code{/home/kyle}@footnote{But we know what they say about 
-assuming...}}.
+expands to @code{/home/kyle}.}.
 
 @item If the program is not running as root and does not have the @code{HOME}
 environment variable set, it will use @code{/tmp/__progname} as the run
