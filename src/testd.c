@@ -22,7 +22,7 @@
 #endif
 
 int
-main(int argc, char **argv)
+main(void)
 {
     double lavg[1];         /* load average */
     int dres, result;
