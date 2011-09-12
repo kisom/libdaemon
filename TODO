@@ -1,5 +1,5 @@
 libdaemon TODO:
-    - fix OpenBSD support
-    it can be built for OpenBSD manually. need to update the config script
-    to automate this properly.
+    - fix OpenBSD support (DONE)
+    - write logging framework
+
 
