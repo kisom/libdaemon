@@ -27,7 +27,7 @@ AC_PROG_RANLIB
 AM_PROG_CC_C_O
 AC_OUTPUT
 
-if test "x${LIBDAEMON_LINUX}" = "x-D_LINUX_SOURCE"; then
+if test "x${host_os%-gnu}" = xlinux; then
 	OSYS="Linux"
 else
 	OSYS="BSD"
