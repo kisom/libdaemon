@@ -31,6 +31,14 @@
 #define __LIBDAEMON_DAEMON_H
 
 #include <sys/types.h>
+#include <signal.h>
+#include <stdlib.h>
+
+
+#define LIBDAEMON_DEATH_KNOLL       SIGUSR1
+#define LIBDAEMON_DO_NOT_DESTROY    EXIT_FAILURE + 1
+
+static int      libdaemon_do_kill;  /* set to 1 if libdaemon should die */
 
 struct libdaemon_config {
         char    *rundir;
