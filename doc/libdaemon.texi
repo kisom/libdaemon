@@ -73,6 +73,38 @@ but this has not been tested.
 @chapter Things You Should Know
 There are a few caveats to using libdaemon.
 
+@section The run directory
+The run directory is important to libdaemon as this is where the PID file is
+kept and, by default, the base directory for logging. Libdaemon expects that
+the all but the lowest layer of the directory exists; for example, given
+@code{/var/run/mydaemon}, the library would expect @code{/var/run} to exist.
+Similarly, if given @code{/usr/local/var/run/mydaemon}, 
+@code{/usr/local/var/run} would be expected to exist.
+
+If the @code{init_daemon} function is called with a @code{NULL} rundir 
+argument, it will attempt to best-guess a valid directory to use. The selection
+looks like this:
+
+@enumerate
+@item If the program is running as root, it is expected to have read / write 
+privileges for @code{/var/run} and will use @code{/var/run/__progname} as the
+run directory. For example, if the @code{testd} program was run as root, it 
+would use @code{/var/run/testd}.
+
+@item If the program is not running as root but has the @code{$@{HOME@}}
+environment variable set, it will use @code{$@{HOME@}/.__progname} as the run 
+directory. For example, if the @code{testd} program was run as a normal user 
+@code{kyle} with the @code{HOME} variable set, it would use 
+@code{/home/kyle/.testd}@footnote{This of course assumes that @code{$@{HOME@}} 
+expands to @code{/home/kyle}@footnote{But we know what they say about 
+assuming...}}.
+
+@item If the program is not running as root and does not have the @code{HOME}
+environment variable set, it will use @code{/tmp/__progname} as the run
+directory. For example, if the @code{testd} program was run as a normal user
+without @code{@{HOME@}} set, it would use @code{/tmp/testd}.
+@end enumerate
+
 @node Manual Copyright
 @appendix Manual Copyright
 
