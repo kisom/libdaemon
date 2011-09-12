@@ -12,3 +12,15 @@ supported platforms:
 +  OpenBSD
 +  Linux
 
+
+Tests
+-----
+
+libdaemon ships with a 'check' target for make. It produces two binaries:
+src/testcore and src/testd. 
+
+testd will create ~/.testd and populate it with testd.pid. After running
+it, you should see messages in /var/log/messages (or where ever syslog
+logs to) and it should show up in the process list. It can be killed using
+kill -SIGUSR1 $(cat ~/.testd/testd.pid)
+
