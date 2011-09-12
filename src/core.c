@@ -38,6 +38,7 @@ extern char    *get_default_rundir(void);
 extern int      test_rundir_access(char *);
 extern int      gen_pidfile(char *);
 extern int      destroy_pidfile(char *);
+extern char    *get_pidfile_name(char *);
 
 
 int
@@ -198,6 +199,8 @@ run_daemon(void)
         /* Catch death knoll as a signal to exit gracefully. */
         signal(LIBDAEMON_DEATH_KNOLL, dedaemonise);
 
+        /* Store the pidfile in the libdaemon_config struct. */
+        cfg->pidfile = get_pidfile_name(cfg->rundir);
 
         syslog(LOG_INFO, "daemonised!");
 
