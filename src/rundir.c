@@ -28,8 +28,6 @@
 
 #define     MAX_PID_STR_SZ          0x20    /* string representation of pid */
 
-static char *get_pidfile_name(char *);
-
 extern char     *__progname;
 
 /*

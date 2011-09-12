@@ -34,5 +34,6 @@ char    *get_default_rundir(void);
 int      test_rundir_access(char *);
 int      gen_pidfile(char *);
 int      destroy_pidfile(char *);
+char    *get_pidfile_name(char *);
 
 #endif
