@@ -1,5 +1,5 @@
 libdaemon TODO:
     - fix OpenBSD support (DONE)
     - write logging framework
-
+    - clean code to build without warnings on OpenBSD
 
