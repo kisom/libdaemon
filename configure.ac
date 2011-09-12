@@ -25,6 +25,12 @@ AC_PROG_CC
 AC_PROG_INSTALL
 AC_PROG_RANLIB
 AM_PROG_CC_C_O
+
+dnl Set up include guard.
+AH_TOP([#ifndef __LIBDAEMON_CONFIG_H])
+AH_TOP([#define __LIBDAEMON_CONFIG_H])
+AH_BOTTOM([#endif])
+
 AC_OUTPUT
 
 if test "x${host_os%-gnu}" = xlinux; then
