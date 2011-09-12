@@ -95,12 +95,13 @@ test_rundir_access(char *rundir)
             return retval;
 
         statres = stat(rundir, &rdst);
-        if (-1 == statres)
+        if (-1 == statres) {
             if ((ENOENT == errno) && (-1 == mkdir(rundir, 00700)))
                 return retval;
             else
                 if (! (rdst.st_mode & S_IFDIR))
                     return retval;
+        }
 
         testfile = calloc(PATH_MAX, sizeof(char));
         if (NULL == testfile)
@@ -166,7 +167,7 @@ gen_pidfile(char *rundir)
         snprintf(pidstr, MAX_PID_STR_SZ, "%u", (unsigned int)pid);
         wrsz = write(pidfd, pidstr, MAX_PID_STR_SZ);
 
-        if ((wrsz <= 0) || (-1 == ftruncate(pidfd, strlen(pidstr))))
+        if ((wrsz <= 0) || (-1 == ftruncate(pidfd, (off_t)strlen(pidstr))))
             goto pid_exit;
 
         retval = EXIT_SUCCESS;
@@ -181,6 +182,8 @@ pid_exit:
 
         if (0 < pidfd)
             close(pidfd);
+
+        return retval;
 }
 
 int
@@ -216,7 +219,6 @@ destroy_exit:
 char
 *get_pidfile_name(char *rundir)
 {
-        int retval;
         char *pidfile;
 
         pidfile = NULL;
