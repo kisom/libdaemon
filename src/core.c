@@ -29,17 +29,13 @@ static struct libdaemon_config  *cfg;
 extern char                     *__progname;
 
 /* private daemon functions */
-static int                      dedaemonise;
+static int                      dedaemonise(void);
 
 int
 init_daemon(char *rundir, uid_t run_uid, gid_t run_gid)
 {
-        struct stat      rdst;
         char            *testfile;          /* for access priv check */
-        int              statres, free_rundir, testfd, retval;
-        uid_t            suid;
-        gid_t            sgid;
-
+        int              free_rundir, retval;
    
         retval = EXIT_FAILURE;
         testfile = NULL;
@@ -171,4 +167,12 @@ struct libdaemon_config
         return cfg;
 }
 
+int
+dedaemonise()
+{
+    int retval;
 
+    retval = EXIT_FAILURE;
+
+    return retval;
+}
