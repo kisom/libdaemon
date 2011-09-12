@@ -162,8 +162,6 @@ gen_pidfile(char *rundir)
         if (-1 == flock(pidfd, LOCK_EX))
             goto pid_exit;
 
-        printf("\t[+] pidfile: %s\n", pidfile);
-
         snprintf(pidstr, MAX_PID_STR_SZ, "%u", (unsigned int)pid);
         wrsz = write(pidfd, pidstr, MAX_PID_STR_SZ);
 
