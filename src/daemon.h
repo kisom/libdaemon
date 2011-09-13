@@ -33,10 +33,18 @@
 #include <sys/types.h>
 #include <signal.h>
 #include <stdlib.h>
+#include <syslog.h>
 
 
 #define LIBDAEMON_DEATH_KNOLL       SIGUSR1
 #define LIBDAEMON_DO_NOT_DESTROY    EXIT_FAILURE + 1
+
+/* Set up definitions for logging levels. */
+#define DAEMON_INFO                 LOG_INFO
+#define DAEMON_WARNING              LOG_WARNING
+#define DAEMON_ERR                  LOG_ERR
+#define DAEMON_ALERT                LOG_ALERT
+#define DAEMON_EMERG                LOG_EMERG
 
 static int      libdaemon_do_kill;  /* set to 1 if libdaemon should die */
 
@@ -54,7 +62,7 @@ struct libdaemon_config {
 int                      init_daemon(char *, uid_t, gid_t);
 int                      run_daemon(void);
 int                      destroy_daemon(void);
-int                      daemon_setlog(char *logfile);
+int                      daemon_setlog(char *);
 int                      daemon_log(int, char *);
 int                      daemon_vlog(int, char *, ...);
 struct libdaemon_config *daemon_getconfig(void);
