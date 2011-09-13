@@ -56,12 +56,12 @@ char *get_default_rundir()
             * and failing that, /tmp.
             */
             if (0 == getuid())
-                snprintf(rundir, PATH_MAX, "/var/run/%s/", __progname);
+                snprintf(rundir, (size_t)PATH_MAX, "/var/run/%s/", __progname);
             else
                 if (NULL == getenv("HOME"))
-                    snprintf(rundir, PATH_MAX, "/tmp/%s", __progname);
+                    snprintf(rundir, (size_t)PATH_MAX, "/tmp/%s", __progname);
                 else
-                    snprintf(rundir, PATH_MAX, "%s/.%s", 
+                    snprintf(rundir, (size_t)PATH_MAX, "%s/.%s", 
                              getenv("HOME"), __progname);
 
             retval = EXIT_SUCCESS;
@@ -162,7 +162,7 @@ gen_pidfile(char *rundir)
             goto pid_exit;
 
         snprintf(pidstr, (size_t)MAX_PID_STR_SZ, "%u", (unsigned int)pid);
-        wrsz = write(pidfd, pidstr, MAX_PID_STR_SZ);
+        wrsz = write(pidfd, pidstr, (size_t)MAX_PID_STR_SZ);
 
         if ((wrsz <= 0) || (-1 == ftruncate(pidfd, (off_t)strlen(pidstr))))
             goto pid_exit;
