@@ -55,6 +55,7 @@ This manual is for libdaemon (version @value{VERSION}, @value{UPDATED}).
 @menu
 * A Quick Introduction::
 * Things You Should Know::
+* The Test Suite::
 * Manual Copyright::
 * Index::
 @end menu
@@ -200,11 +201,26 @@ only one instance of Libdaemon can be running at a single time. This is
 currently being looked into and a better way of doing this is being evaluated.
 @end itemize
 
+@node The Test Suite
+@chapter The Test Suite
+
+@section testcore
+@code{testcore} is a binary to test the functionality in core.c; it is probably
+of little use to anyone but the @code{Libdaemon} maintainers.
+
+@section @code{testd}
+@code{testd} is a test daemon to verify the @code{Libdaemon} library works. It
+is build via @code{make check} and is found in @code{src/testd}. When invoked,
+it simply daemonises, and wakes up every minute to check the load average. If
+the load average is above a certain level, it will write a log message warning
+about the load average. Otherwise, it just notes that it woke up. As with any
+daemon built using the @code{Libdaemon} library, the proper way to shut it down
+is to send it the signal @code{SIGUSR1}. It will log when it is shutting down.
+
 @node Manual Copyright
 @appendix Manual Copyright
 
 @include cc.texi
-
 
 @node Index
 @unnumbered Index
