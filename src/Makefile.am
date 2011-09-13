@@ -1,7 +1,7 @@
 AM_CFLAGS = -Wall -Wextra -pedantic -Wshadow -Wpointer-arith -Wcast-align \
             -Wwrite-strings -Wmissing-prototypes -Wmissing-declarations   \
             -Wredundant-decls -Wnested-externs -Winline -Wno-long-long    \
-            -Wstrict-prototypes -g -O0
+            -Wconversion -Wstrict-prototypes -g -O0
 lib_LIBRARIES = libdaemon.a
 include_HEADERS = daemon.h
 check_PROGRAMS = testcore testd
