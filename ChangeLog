@@ -1,0 +1,584 @@
+commit 6ca61c7dfbe990c8fbfdd60edbbcc5a22e6efd96
+Author: Kyle Isom <coder@kyleisom.net>
+Date:   Tue Sep 13 08:15:16 2011 -0400
+
+    Remove ChangeLog and distcp.sh.
+    
+    distcp.sh is a pre-autotools dist construct.
+
+commit b8b3ced39b27740264be3b01842cbe35a64935c0
+Author: Kyle Isom <coder@kyleisom.net>
+Date:   Tue Sep 13 14:50:09 2011 +0300
+
+    src/Makefile.am: re-add -Wconversion
+
+commit 83f1e342cbe7d816a3df8773a380c125a3af5bb9
+Author: Kyle Isom <coder@kyleisom.net>
+Date:   Tue Sep 13 14:23:43 2011 +0300
+
+    src/rundir.c: fix -Wconversion warnings
+    
+    Typecast ints to size_t for call to calloc.
+
+commit a9790ddc3a275b74be05aa9b20eed3f3f14d748c
+Author: Kyle Isom <coder@kyleisom.net>
+Date:   Tue Sep 13 14:20:46 2011 +0300
+
+    src/core.c: fix -Wconversion errors
+    
+    Typecast ints to size_t for call to calloc.
+
+commit 9e5241e3229f55d52367b8c4373dfffa514030bb
+Author: Kyle Isom <coder@kyleisom.net>
+Date:   Tue Sep 13 14:05:25 2011 +0300
+
+    src/Makefile.am: remove -Wconversion
+    
+    -Wconversion is is causing warnings with valid uses of calloc().
+
+commit 8519eba47ad9898be882efcfc5e85de07e59e134
+Author: Kyle Isom <coder@kyleisom.net>
+Date:   Tue Sep 13 11:27:47 2011 +0300
+
+    configure.ac: add #undef _GNU_SOURCE for BSD
+
+commit 0d9116afa113001cc626fdd872834a9f96d926a4
+Author: Kyle Isom <coder@kyleisom.net>
+Date:   Tue Sep 13 08:50:43 2011 +0300
+
+    configure.ac: define _BSD_SOURCE for BSD only
+    
+    Previously it was being defined whether we were building for Linux or
+    BSd.
+
+commit 4046fe6ab46d7e0dbc57092ce3e6cbdf78725ce6
+Author: Kyle Isom <coder@kyleisom.net>
+Date:   Tue Sep 13 00:17:05 2011 +0300
+
+    TODO: clean code to build without warnings on BSD
+
+commit c67f27c7989a866e78d9cf00e93242b01d714caf
+Author: Kyle Isom <coder@kyleisom.net>
+Date:   Tue Sep 13 00:16:20 2011 +0300
+
+    doc/libdaemon.texi: start section "limitations"
+
+commit e1289c2ebd755e0772bc80be3cf4419174c40da3
+Author: Kyle Isom <coder@kyleisom.net>
+Date:   Tue Sep 13 00:16:01 2011 +0300
+
+    src/Makefile.am: add rundir header to dist
+
+commit 2d738163ffada5e18f6852d1ca23f016cef15df9
+Author: Kyle Isom <coder@kyleisom.net>
+Date:   Tue Sep 13 00:15:46 2011 +0300
+
+    configure.ac: define as BSD source
+
+commit 22cd88b2930aceee540bf2c269b3fadc340143ec
+Author: Kyle Isom <coder@kyleisom.net>
+Date:   Mon Sep 12 23:39:48 2011 +0300
+
+    README: update with instructions for using testd
+
+commit 1bd59ed3e2cec9eaebeeb6c9d651b3b7fbf6eedb
+Author: Kyle Isom <coder@kyleisom.net>
+Date:   Mon Sep 12 23:32:16 2011 +0300
+
+    TODO: update with progress
+
+commit 41a34bbfd6609abfee04b36c9dc9be863f6d4556
+Author: Kyle Isom <coder@kyleisom.net>
+Date:   Mon Sep 12 23:09:37 2011 +0300
+
+    doc/libdaemon.texi: cleaning extraneous xref
+
+commit 904e3ebbf5454a22803164d222c4bf89c4210742
+Author: Kyle Isom <coder@kyleisom.net>
+Date:   Mon Sep 12 22:27:38 2011 +0300
+
+    doc/libdaemon.texi: document init and config struct.
+
+commit de2b30aaff07ca7998d7af85e0a2365aae4ef5e3
+Author: Kyle Isom <coder@kyleisom.net>
+Date:   Mon Sep 12 22:25:48 2011 +0300
+
+    src/rundir.?: make get_pidfile_name public
+    
+    get_pidfile_name is used publicly now to store the pidfile in the
+    config struct. Note that I am currently evaluating whether this information
+    needs to be in the config struct and it may be made private again if the
+    struct is modified to no longer store the pidfile. The argument is that
+    it is just as easy to call getpid(), and the pidfile mostly serves to make
+    sure the daemon isn't already running.
+
+commit 924f1b47b61a36f84a9bb0a1fc35f3be21e93506
+Author: Kyle Isom <coder@kyleisom.net>
+Date:   Mon Sep 12 22:25:01 2011 +0300
+
+    src/core.c: store pidfile to libdaemon_config.
+
+commit bf7a11e30d6de7809ceb3d3737fa42cb535cbca7
+Author: Kyle Isom <coder@kyleisom.net>
+Date:   Mon Sep 12 21:39:37 2011 +0300
+
+    doc/libdaemon.texi: remove double footnote
+
+commit 6d8574415c1fe4eaadf42d17acf63821cbfe9454
+Author: Kyle Isom <coder@kyleisom.net>
+Date:   Mon Sep 12 21:38:49 2011 +0300
+
+    src/testd.c: main() declaration to main(void)
+    
+    fix "warning: function declaration isn't prototype" warning
+
+commit 98eefb231a9643603ede608d341e41eeb808ba7e
+Author: Kyle Isom <coder@kyleisom.net>
+Date:   Mon Sep 12 21:37:15 2011 +0300
+
+    src/rundir.c: code cleanup to remove warnings
+    
+    initialise pidfd (to -1 for default fail)
+    
+    include config.h to get _LINUX_SOURCE
+
+commit 4df5a68a9220373546129c4c5b80f3e632308f49
+Author: Kyle Isom <coder@kyleisom.net>
+Date:   Mon Sep 12 21:35:21 2011 +0300
+
+    src/core.c: test return value of chdir(char *)
+
+commit c8895573cb6ef38f26a0f815c6a0e5ac10ce0c32
+Author: Kyle Isom <coder@kyleisom.net>
+Date:   Mon Sep 12 21:34:56 2011 +0300
+
+    configure.ac: add include guard to config.h
+
+commit e98a4a2ed5365b7acba60a5da35f1b607af370a2
+Author: Kyle Isom <coder@kyleisom.net>
+Date:   Mon Sep 12 21:21:13 2011 +0300
+
+    doc/libdaemon.texi: adding caveats about rundir
+
+commit 34685ebab50f4cd8105bc46d38c1d18f2577c8e9
+Author: Kyle Isom <coder@kyleisom.net>
+Date:   Mon Sep 12 20:04:16 2011 +0300
+
+    src/testd.c: updating test daemon with new API.
+
+commit 788295c6cb288c831076f0c5807ffea9376c551e
+Author: Kyle Isom <coder@kyleisom.net>
+Date:   Mon Sep 12 20:03:52 2011 +0300
+
+    src/testcore.c: adding extra output and a sleep
+
+commit e68805e1cf26af12b20485573e057733f5ddd7e9
+Author: Kyle Isom <coder@kyleisom.net>
+Date:   Mon Sep 12 20:02:34 2011 +0300
+
+    src/daemon.h: define new exit code and kill signal
+    
+    LIBDAEMON_DEATH_KNOLL is the signal used to gracefully shutdown the daemon.
+    
+    LIBDAEMON_DO_NOT_DESTROY is the exit code used to designate the exit of a
+    parent for the two forks() that occur.
+
+commit d19448cb1466b54fd0b895f880e0ffd9b5d419b4
+Author: Kyle Isom <coder@kyleisom.net>
+Date:   Mon Sep 12 19:59:08 2011 +0300
+
+    src/Makefile.am: add test daemon target
+
+commit d72daf51ce2c4e3370ed99ec35a503950764e5e7
+Author: Kyle Isom <coder@kyleisom.net>
+Date:   Mon Sep 12 19:58:52 2011 +0300
+
+    src/rundir.c: remove debug pidfile output
+
+commit 8cf0be1fd8b12cab375cd90f6e32971e2aaa7872
+Author: Kyle Isom <coder@kyleisom.net>
+Date:   Mon Sep 12 19:57:33 2011 +0300
+
+    src/core.c: run, init, and destroy working
+    
+    Daemons can now dedaemonise as well, and this is done in a generally
+    reentrant manner.
+
+commit 15454437e38fee16c35a609ef5aab59b4025227d
+Author: Kyle Isom <coder@kyleisom.net>
+Date:   Mon Sep 12 18:06:42 2011 +0300
+
+    src/rundir.c: cleanup from new gcc flags
+
+commit dd89dfe248cfbfcfc80819d670ad94bfff5b1eec
+Author: Kyle Isom <coder@kyleisom.net>
+Date:   Mon Sep 12 18:06:12 2011 +0300
+
+    src/core.c: cleanup from new make flags
+
+commit 23d5c7e54eb248d29598e933c155b295bb7dc8fd
+Author: Kyle Isom <coder@kyleisom.net>
+Date:   Mon Sep 12 18:05:02 2011 +0300
+
+    src/testcore.c: switching to test battery
+
+commit 7dad93262380c25e2162b3c45f650f897d692038
+Author: Kyle Isom <coder@kyleisom.net>
+Date:   Mon Sep 12 18:04:41 2011 +0300
+
+    src/Makefile.am: adding strict gcc flags
+
+commit 718d1bcc8bd3e3759f4225b2639940c2cb9007dd
+Author: Kyle Isom <coder@kyleisom.net>
+Date:   Mon Sep 12 17:30:37 2011 +0300
+
+    src/core.c: update core to use rundir functions
+
+commit 2109cb33e8d48c15ad3d67c63a343f852beda975
+Author: Kyle Isom <coder@kyleisom.net>
+Date:   Mon Sep 12 17:28:06 2011 +0300
+
+    configure.ac: fix "library type" display
+    
+    The configure script was using the old CFLAGS-style method to determine
+    whether it was doing a BSD or Linux build. This has been fixed; now it will
+    properly show Linux builds.
+
+commit 06c490c0d872a602feacd354c0baf3c8a89b3fb6
+Author: Kyle Isom <coder@kyleisom.net>
+Date:   Mon Sep 12 17:27:02 2011 +0300
+
+    src/rundir.?: adding run directory function code
+
+commit 877c1226ab3421859d7d401f06b2e25c026ff025
+Author: Kyle Isom <coder@kyleisom.net>
+Date:   Mon Sep 12 06:34:49 2011 +0300
+
+    src/core.c: fix memory leak (thanks valgrind)
+
+commit f53b831622651706a0aa8587b032ceff5b36120f
+Author: Kyle Isom <coder@kyleisom.net>
+Date:   Sun Sep 11 22:37:14 2011 +0300
+
+    massive update to get documentation working
+
+commit 25e87ff3056f53b4b32dcfea4ac9f62d3f8431cc
+Author: Kyle Isom <coder@kyleisom.net>
+Date:   Sun Sep 11 22:21:09 2011 +0300
+
+    adding texinfo docs
+
+commit 85475c759b2d30453103237a49d4c129cbf97b0e
+Author: Kyle Isom <coder@kyleisom.net>
+Date:   Sun Sep 11 22:20:38 2011 +0300
+
+    src/core.c: forgot a semicolon
+
+commit b4a51987e8d7e4de2ee457f1fcd39b79f7028cca
+Author: Kyle Isom <coder@kyleisom.net>
+Date:   Sun Sep 11 22:17:09 2011 +0300
+
+    quick errno hack
+
+commit 633e94aba026a45bf89e14f92b0b1cc33ea39203
+Author: Kyle Isom <coder@kyleisom.net>
+Date:   Sun Sep 11 21:00:12 2011 +0300
+
+    WARNING: update DIRE WARNING
+
+commit 37ae243a218c080692091ab029ac4b31b7a80039
+Author: Kyle Isom <coder@kyleisom.net>
+Date:   Sun Sep 11 20:57:03 2011 +0300
+
+    src/core.c: removing dconfig.h include
+
+commit 755cb9ffff0603ddc9834105e304d5626269d590
+Author: Kyle Isom <coder@kyleisom.net>
+Date:   Sun Sep 11 20:56:20 2011 +0300
+
+    src/daemon.h: moving config struct here
+    
+    libdaemon_config struct is now in daemon.h. dconfig.h is not long for this
+    world.
+
+commit ded046e5788c50af6d422b6b012fc85bcf25589e
+Author: Kyle Isom <coder@kyleisom.net>
+Date:   Sun Sep 11 20:55:57 2011 +0300
+
+    src/testcore.c: new code to test libdaemon
+
+commit 0b119832a6f91281c2ae4df140475e6e12fb0a8c
+Author: Kyle Isom <coder@kyleisom.net>
+Date:   Sun Sep 11 20:55:35 2011 +0300
+
+    src/Makefile.am: adding build rules for test code
+
+commit c7e4e65d02db6855aad52f600e79215785aa9acd
+Author: Kyle Isom <coder@kyleisom.net>
+Date:   Sun Sep 11 20:54:45 2011 +0300
+
+    configure.ac: minor modifications for new build
+
+commit b7ba3c1528a7fe432467454b2924263197e05843
+Author: Kyle Isom <coder@kyleisom.net>
+Date:   Sun Sep 11 20:54:23 2011 +0300
+
+    src/core.c: init_daemon functional
+
+commit 716afc66983c360f5e78d70c5e1c2c668f328ba7
+Author: Kyle Isom <coder@kyleisom.net>
+Date:   Sun Sep 11 16:49:20 2011 +0300
+
+    begin writing 3.0/NG
+
+commit af96efc1728dff5c1ce9eb85639b936f8213b58e
+Author: Kyle Isom <coder@kyleisom.net>
+Date:   Sun Sep 11 14:26:33 2011 +0300
+
+    updating NEWS with current status of project
+
+commit 5a2df5b6dba9ba343a9534a802f5c04ffec2bcbe
+Author: Kyle Isom <coder@kyleisom.net>
+Date:   Sun Sep 11 14:24:36 2011 +0300
+
+    commit before rebranching
+
+commit 938923586820582e1fe333bba83eeefc99e9325e
+Author: Kyle Isom <coder@kyleisom.net>
+Date:   Sun Sep 11 09:31:16 2011 +0300
+
+    fixing compiler warnings
+
+commit f8c239965769fec2393397fd394d8702d8d12c44
+Author: Kyle Isom <coder@kyleisom.net>
+Date:   Sun Sep 11 09:27:23 2011 +0300
+
+    s/pname/__progname/ and fix some warnings
+    
+    things like checking returns on functions that in all honesty don't matter,
+    but it's good C to do anyways.
+
+commit efcbb209aa79b3cc497630c976c747516fc33ac0
+Author: Kyle Isom <coder@kyleisom.net>
+Date:   Sun Sep 11 08:31:56 2011 +0300
+
+    bumping up to new minor revision
+
+commit e21d74a01b0dcdbb8dfbfd8a5edb97a3f83afc22
+Author: Kyle Isom <coder@kyleisom.net>
+Date:   Sun Sep 11 00:26:01 2011 +0300
+
+    adding DIRE WARNING
+
+commit 6faa8402490cec7a3adc69bd71fcc774ed7cd08f
+Author: Kyle Isom <coder@kyleisom.net>
+Date:   Sun Sep 11 00:23:05 2011 +0300
+
+    updating docs
+
+commit d3dcb56a10f1a9310934d3bcbe24b0d1c4fae193
+Author: Kyle Isom <coder@kyleisom.net>
+Date:   Sun Sep 11 00:19:24 2011 +0300
+
+    remove hardcoded vardir
+
+commit e64b393680dec7fa3173a3a4e2b22caee984e8c9
+Author: Kyle Isom <coder@kyleisom.net>
+Date:   Sat Sep 10 23:44:04 2011 +0300
+
+    getting @LIBDAEMON_LINUX@ working properly
+
+commit 4d36eabf3fc86549cd802f4c82232e1c1f5a0323
+Author: Kyle Isom <coder@kyleisom.net>
+Date:   Sat Sep 10 23:42:46 2011 +0300
+
+    daemon.?: changing setreuid() functionality; clean
+    
+    setreuid() now runs with the current privs if -1, -1 is specified as the
+    new uid and gid. if you want to run as root, feel free.
+    
+    cleaning up code to fix a few minor bugs
+
+commit 63cbe32b528720f9db8360857673334ca811e4f3
+Author: Kyle Isom <coder@kyleisom.net>
+Date:   Sat Sep 10 23:23:03 2011 +0300
+
+    daemon.c: use current privs by default
+
+commit ee174f7499096e0b6ac64da1b8668a81679acf20
+Author: Kyle Isom <coder@kyleisom.net>
+Date:   Sat Sep 10 23:21:44 2011 +0300
+
+    removing swap file that snuck in
+
+commit 2c010148ed43f31f6e381115922dc5b4d81e2451
+Author: Kyle Isom <coder@kyleisom.net>
+Date:   Sat Sep 10 17:35:19 2011 +0300
+
+    removing silent-rules from configure.ac
+
+commit 455c208b93e9e015e9baedc3dd6fb465f5dd8cb0
+Author: Kyle Isom <coder@kyleisom.net>
+Date:   Sat Sep 10 07:31:47 2011 -0400
+
+    adding some config output to configure.ac
+
+commit af61a2437d20d26abdac514a60ab87e0693b24e8
+Author: Kyle Isom <coder@kyleisom.net>
+Date:   Sat Sep 10 10:24:57 2011 +0300
+
+    fix configure.ac
+
+commit 6cf136da4ad6f7420e9734a4c07debb9b72e4c0d
+Author: Kyle Isom <coder@kyleisom.net>
+Date:   Sat Sep 10 10:15:49 2011 +0300
+
+    updating configure.ac
+
+commit e44d94922cd4fb64613c2c741c14256a65368851
+Author: Kyle Isom <coder@kyleisom.net>
+Date:   Sat Sep 10 10:10:17 2011 +0300
+
+    updating new files
+
+commit 01d5546003052973e80b3937b600bbb8e97bbfd5
+Author: Kyle Isom <coder@kyleisom.net>
+Date:   Sat Sep 10 10:08:39 2011 +0300
+
+    adding gitignore
+
+commit 939c0554111ee5292dd76cbcd4f3031e3e1ce5f5
+Merge: 16b3644 70c200f
+Author: Kyle Isom <coder@kyleisom.net>
+Date:   Sat Sep 10 10:07:20 2011 +0300
+
+    Merge branch 'master' of github.com:kisom/libdaemon into automaking
+    
+    Conflicts:
+    	configure.ac
+    	doc/Makefile.in
+
+commit 16b364412b1a967b465702995a28021e8e6d80a1
+Author: Kyle Isom <coder@kyleisom.net>
+Date:   Sat Sep 10 09:46:30 2011 +0300
+
+    working on getting a functional automake system
+
+commit 125cf08e9fbec445229299f2b0ac0f57192bd753
+Author: Kyle Isom <coder@kyleisom.net>
+Date:   Fri Sep 9 18:39:05 2011 +0300
+
+    adding automakefile templates
+
+commit 170daef551bbf8ac10a034cada65a6cb1b3de6c8
+Author: Kyle Isom <coder@kyleisom.net>
+Date:   Fri Sep 9 18:38:45 2011 +0300
+
+    working on automaking
+
+commit 70c200f49d48193693692a58f68e4d2155f79825
+Author: Kyle Isom <coder@kyleisom.net>
+Date:   Fri Sep 9 01:32:42 2011 -0400
+
+    adding proper operating system check
+
+commit 5a20e0af45d7f5f6e100335fe41b2556dd5750ea
+Author: Kyle Isom <coder@kyleisom.net>
+Date:   Fri Sep 9 01:00:37 2011 -0400
+
+    add old-style implicit rule override for POSIX make
+
+commit ce8b202b6a4b45bd3ea3829000a871a1c5df3b1f
+Author: Kyle Isom <coder@kyleisom.net>
+Date:   Fri Sep 9 00:17:31 2011 +0300
+
+    libdaemon now working for OpenBSD
+
+commit bb19a251bc017523b5111812e17f4cf0ddca29ac
+Author: Kyle Isom <coder@kyleisom.net>
+Date:   Fri Sep 9 00:00:53 2011 +0300
+
+    adding proper dist target
+
+commit 62adca53644e68d4f1cabc34387667d3a7e5d064
+Author: Kyle Isom <coder@kyleisom.net>
+Date:   Thu Sep 8 23:54:58 2011 +0300
+
+    epic autoconfiscation round 2
+
+commit 5e9741336284921ff75a9416df641b99835502f7
+Author: Kyle Isom <coder@kyleisom.net>
+Date:   Thu Sep 8 22:56:18 2011 +0300
+
+    epic autoconfiscation
+
+commit f4cf31369bfab88d4798f96f2f7ed0ee6a3dcb44
+Author: Kyle Isom <coder@kyleisom.net>
+Date:   Mon Sep 5 17:10:08 2011 +0300
+
+    cleaning up daemon code; add test daemon
+
+commit 1a146676efebe579d8f1b8984406ca7e59314f50
+Author: Kyle Isom <coder@kyleisom.net>
+Date:   Mon Sep 5 17:08:02 2011 +0300
+
+    adding Linux port of libdaemon
+
+commit eb1a796cb2425e9211508a68f5652ff062ab8630
+Author: Kyle Isom <coder@kyleisom.net>
+Date:   Mon Sep 5 17:07:36 2011 +0300
+
+    adding test daemon code
+
+commit 75f4ca1600675805f385a67b98a83dc845d3d801
+Author: Kyle Isom <coder@kyleisom.net>
+Date:   Mon Sep 5 15:59:08 2011 +0300
+
+    removing unused var
+
+commit f1e0dbaaa5092f4a81ee74b8613da29513927603
+Author: Kyle Isom <coder@kyleisom.net>
+Date:   Mon Sep 5 15:33:28 2011 +0300
+
+    copying openbsd dir to linux
+    
+    beginning port of libdaemon to lunix
+
+commit 03ada1fdb10652b62417ed5861e018d6fbfa831b
+Author: Kyle Isom <coder@kyleisom.net>
+Date:   Mon Sep 5 15:33:07 2011 +0300
+
+    noting that linux port is underway
+
+commit a6301c0b34516ec861795e75778b22212676c256
+Author: Kyle Isom <coder@kyleisom.net>
+Date:   Sun Jun 19 02:32:05 2011 -0600
+
+    fix typo
+
+commit 0571eb6de5f4929dfa06905603dc44ee3500da8c
+Author: Kyle Isom <coder@kyleisom.net>
+Date:   Sun Jun 19 02:30:53 2011 -0600
+
+    updating readme
+
+commit 447c8f158b498b1b2e2ecc68ca55e70d0c2630da
+Author: Kyle Isom <coder@kyleisom.net>
+Date:   Sun Jun 19 02:27:30 2011 -0600
+
+    format fix on readme
+
+commit 131f5592ccaffb5f5f9af96636ee9c6ae00e61ac
+Author: Kyle Isom <coder@kyleisom.net>
+Date:   Sun Jun 19 02:26:15 2011 -0600
+
+    adding readme to project
+
+commit 6a37ee02db8de0c99f96b0f9d19afe039ea6c235
+Author: Kyle Isom <coder@kyleisom.net>
+Date:   Sun Jun 19 02:19:52 2011 -0600
+
+    Initial commit.
+    
+    Code was written a long time ago and the repo was lost but the package
+    survived.
