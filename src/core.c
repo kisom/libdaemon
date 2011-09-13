@@ -81,18 +81,18 @@ init_daemon(char *rundir, uid_t run_uid, gid_t run_gid)
      * saving any of this to the configuration struct so as to ensure the
      * user doesn't accidentally try to daemonise with an invalid setup.
      */
-    cfg = calloc(1, sizeof(struct libdaemon_config));
+    cfg = calloc((size_t)1, sizeof(struct libdaemon_config));
     if (NULL == cfg)
         goto init_exit;
 
-    cfg->rundir     = calloc(PATH_MAX, sizeof(char));
-    cfg->pidfile    = calloc(PATH_MAX, sizeof(char));
+    cfg->rundir     = calloc((size_t)PATH_MAX, sizeof(char));
+    cfg->pidfile    = calloc((size_t)PATH_MAX, sizeof(char));
     cfg->logfile    = NULL;        /* set via daemon_setlog */
     cfg->logfd      = -1;          /* set via daemon_setlog */
     cfg->run_uid    = run_uid;
     cfg->run_gid    = run_gid;
 
-    snprintf(cfg->rundir, PATH_MAX, "%s", rundir);
+    snprintf(cfg->rundir, (size_t)PATH_MAX, "%s", rundir);
     libdaemon_do_kill = 0;
     retval = EXIT_SUCCESS;
 
