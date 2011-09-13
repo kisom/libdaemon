@@ -48,7 +48,7 @@ char *get_default_rundir()
 
         rundir = NULL;
 
-        rundir = calloc(PATH_MAX, sizeof(char));
+        rundir = calloc((size_t)PATH_MAX, sizeof(char));
         if (NULL != rundir) {
             /*
              * It is expected that root has privileges to access to access 
@@ -101,11 +101,11 @@ test_rundir_access(char *rundir)
                     return retval;
         }
 
-        testfile = calloc(PATH_MAX, sizeof(char));
+        testfile = calloc((size_t)PATH_MAX, sizeof(char));
         if (NULL == testfile)
             return retval;
 
-        snprintf(testfile, PATH_MAX, "%s/%s.testfile", rundir, __progname);
+        snprintf(testfile, (size_t)PATH_MAX, "%s/%s.testfile", rundir, __progname);
 
         testfd = open(testfile, O_CREAT | O_EXCL | O_WRONLY,
                       S_IRUSR | S_IWUSR);
@@ -148,11 +148,11 @@ gen_pidfile(char *rundir)
         pid = getpid();
 
         pidfile = get_pidfile_name(rundir);
-        pidstr  = calloc(MAX_PID_STR_SZ, sizeof(char));
+        pidstr  = calloc((size_t)MAX_PID_STR_SZ, sizeof(char));
         if ((NULL == pidfile) || (NULL == pidstr))
             goto pid_exit;
 
-        snprintf(pidfile, PATH_MAX, "%s/%s.pid", rundir, __progname);
+        snprintf(pidfile, (size_t)PATH_MAX, "%s/%s.pid", rundir, __progname);
         pidfd = open(pidfile, O_WRONLY | O_CREAT | O_EXCL, 
                      S_IRUSR | S_IWUSR);
         if (-1 == pidfd)
@@ -161,7 +161,7 @@ gen_pidfile(char *rundir)
         if (-1 == flock(pidfd, LOCK_EX))
             goto pid_exit;
 
-        snprintf(pidstr, MAX_PID_STR_SZ, "%u", (unsigned int)pid);
+        snprintf(pidstr, (size_t)MAX_PID_STR_SZ, "%u", (unsigned int)pid);
         wrsz = write(pidfd, pidstr, MAX_PID_STR_SZ);
 
         if ((wrsz <= 0) || (-1 == ftruncate(pidfd, (off_t)strlen(pidstr))))
@@ -224,11 +224,11 @@ char
         if (NULL == rundir)
             return pidfile;
 
-        pidfile = calloc(PATH_MAX, sizeof(char));
+        pidfile = calloc((size_t)PATH_MAX, sizeof(char));
         if (NULL == pidfile)
             return pidfile;
 
-        snprintf(pidfile, PATH_MAX, "%s/%s.pid", rundir, __progname);
+        snprintf(pidfile, (size_t)PATH_MAX, "%s/%s.pid", rundir, __progname);
  
         return pidfile;
 }
