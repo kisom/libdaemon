@@ -16,10 +16,10 @@ if test "x${host_os%-gnu}" = xlinux; then
     AC_MSG_NOTICE([Linux system detected, configuring for Linux compatability.])
     AC_DEFINE([_LINUX_SOURCE], [], [build for linux host])
 else
+    AC_DEFINE([_BSD_SOURCE], [], [build for BSD host])
     AC_MSG_NOTICE([Configuring for BSD compatibility.])
 fi
 
-AC_DEFINE([_BSD_SOURCE], [], [BSD source. Because])
 
 AC_CONFIG_FILES(doc/Makefile src/Makefile Makefile)
 AC_CONFIG_HEADERS(src/config.h)
