@@ -118,11 +118,42 @@ also be used).
 
 @code{char *logfile} is the file the daemon logs (as opposed to using the
 @code{syslog} interface). Correspondingly, @code{int logfd} is the file
-descriptor for the logfile.
+descriptor for the logfile. If syslog is being used, @code{logfile} will be
+NULL and @code{logfd} will be -1. Otherwise, they will point to a file on disk
+to be used.
 
 @code{uid_t run_uid} and @code{gid_t run_gid} contain the UID and GID the 
 daemon was run as, and are used internally for sanity checks. You may use these
 or, just as easily, @code{getuid()} or @code{getgid()}.
+
+@section Logging
+Libdaemon provides an internal logging framework:
+
+@example
+int                      daemon_setlog(char *logfile);
+int                      daemon_log(int, char *);
+int                      daemon_vlog(int, char *, ...);
+@end example
+
+@code{daemon_setlog} is used to open a log file. If one is currently open, it
+will be closed first. If the @code{char *} is NULL, the daemon will use the
+syslog interface. The function returns @code{EXIT_SUCCESS} if the logfile was
+sucessfully opened and any previous open logfiles were successfully closed.
+
+@code{daemon_log} and @code{daemon_vlog} are used to log information to 
+@code{logfile}. The @code{int} is the log level to use, which is one of
+@code{DAEMON_INFO}, @code{DAEMON_WARN}, @code{DAEMON_ERR}, @code{DAEMON_ALERT}, 
+or @code{DAEMON_EMERG}. These are mapped to their @code{LOG_*} equivalents, and 
+are provided so your code does not need to include @code{syslog.h}. 
+@code{daemon_log} is used to write simple @code{char *} strings to the log,
+and @code{daemon_vlog} is used to write more complex (i.e. formatted) log
+messages. The first @code{char *} in @code{daemon_vlog} should be the format,
+and any following arguments should be those required by the format. 
+@code{daemon_vlog} keeps count of the number of arguments passed in and the 
+number of conversion specifications (ex. @code{%d}) to make sure the number
+of arguments matches the format. Both functions return @code{EXIT_SUCCESS} if
+the log was successfully written to, and @code{EXIT_FAILURE} if there was an
+error.
 
 @node Things You Should Know
 @chapter Things You Should Know
