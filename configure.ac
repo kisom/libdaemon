@@ -22,7 +22,7 @@ if test "x${host_os%-gnu}" = xlinux; then
     AC_DEFINE([_LINUX_SOURCE], [], [build for linux host])
 else
     AH_TOP([#undef _GNU_SOURCE    /* make sure this is unset for BSD systems */])
-    AC_DEFINE([_BSD_SOURCE], [], [build for BSD host])
+    AC_DEFINE([_BSD_SOURCE], [], [use BSD semantics])
     AC_MSG_NOTICE([Configuring for BSD compatibility.])
 fi
 
