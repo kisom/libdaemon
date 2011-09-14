@@ -63,8 +63,8 @@ int                      init_daemon(char *, uid_t, gid_t);
 int                      run_daemon(void);
 int                      destroy_daemon(void);
 int                      daemon_setlog(char *);
-int                      daemon_log(int, char *);
-int                      daemon_vlog(int, char *, ...);
+int                      daemon_log(int, const char *);
+int                      daemon_vlog(int, const char *, ...);
 struct libdaemon_config *daemon_getconfig(void);
 
 
