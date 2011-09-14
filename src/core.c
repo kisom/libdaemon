@@ -97,7 +97,8 @@ init_daemon(char *rundir, uid_t run_uid, gid_t run_gid)
     retval = EXIT_SUCCESS;
 
 init_exit:
-        perror(__progname);
+        if (EXIT_FAILURE == retval)
+            perror(__progname);
         if (1 == free_rundir) {
             free(rundir);
             rundir = NULL;
