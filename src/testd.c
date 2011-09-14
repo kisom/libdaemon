@@ -31,7 +31,7 @@ main(void)
 
     /* daemonise the program */
     dres = init_daemon(NULL, 0, 0);
-    if (EXIT_SUCCESS != dres) {
+    if ((EXIT_SUCCESS != dres) || (EXIT_SUCCESS != daemon_setlog(NULL))) {
         syslog(LOG_INFO, "error daemonising!");
         if (LIBDAEMON_DO_NOT_DESTROY != dres) 
             destroy_daemon();
@@ -41,7 +41,7 @@ main(void)
     else {
         dres = run_daemon();
         if (EXIT_SUCCESS != dres) {
-            syslog(LOG_INFO, "run_daemon failed!");
+            daemon_log(DAEMON_INFO, "run_daemon failed!");
             if (LIBDAEMON_DO_NOT_DESTROY != dres)
                 destroy_daemon();
             return EXIT_FAILURE;
@@ -57,18 +57,18 @@ main(void)
     */
     /* main run loop */
     while (1) {
-        syslog(LOG_INFO, "still running...");
+        daemon_log(DAEMON_INFO, "still running...");
         /* get one minute load average */
         if (-1 == getloadavg(lavg, 1))
-            syslog(LOG_INFO, "error retrieving load average!");
+            daemon_log(DAEMON_INFO, "error retrieving load average!");
         else if (lavg[0] > LOAD_WARN_THRESH)
-            syslog(LOG_WARNING, "load average exceeded %f: "
+            daemon_vlog(DAEMON_WARNING, "load average exceeded %f: "
                         "is %f!\n", LOAD_WARN_THRESH, lavg[0]);
         else
-            syslog(LOG_INFO, "wakes up...\n");
+            daemon_log(DAEMON_INFO, "wakes up...\n");
 
         if (1 == libdaemon_do_kill) {
-            syslog(LOG_INFO, "received death knoll...");
+            daemon_log(DAEMON_INFO, "received death knoll...");
             destroy_daemon();
             exit( EXIT_SUCCESS );
         }
