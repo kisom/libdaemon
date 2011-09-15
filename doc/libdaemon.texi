@@ -217,6 +217,8 @@ about the load average. Otherwise, it just notes that it woke up. As with any
 daemon built using the @code{Libdaemon} library, the proper way to shut it down
 is to send it the signal @code{SIGUSR1}. It will log when it is shutting down.
 
+The source for @code{testd} illustrates how the library works and can be used
+in your code. The test daemon source is at @code{src/testd.c}.
 @node Manual Copyright
 @appendix Manual Copyright
 
