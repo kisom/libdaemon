@@ -197,7 +197,7 @@ supported. Currently known and understood limitations are:
 
 @itemize
 @item Because Libdaemon uses a pidfile to check whether it is running or not,
-only one instance of Libdaemon can be running at a single time. This is 
+only one instance of given binary can be running at a single time. This is 
 currently being looked into and a better way of doing this is being evaluated.
 @end itemize
 
