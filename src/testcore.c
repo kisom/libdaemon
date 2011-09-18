@@ -52,8 +52,7 @@ test_battery()
         retval = test_init();
 
         /* test run works */
-        retval = test_run();
-        sleep(30);
+//        retval = test_run();
 
         /* test destroy works */
         retval = test_destroy();
