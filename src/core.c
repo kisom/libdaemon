@@ -27,7 +27,7 @@
 #include "rundir.h"
 
 /* this is the primary configuration struct for the daemon */
-static struct libdaemon_config  *cfg;
+static struct libdaemon_config  *daemon_cfg;
 extern char                     *__progname;
 
 /* private daemon functions */
@@ -51,7 +51,7 @@ init_daemon(char *rundir, uid_t run_uid, gid_t run_gid)
         testfile = NULL;
         free_rundir = 0;
 
-        if (NULL != cfg) {
+        if (NULL != daemon_cfg) {
             fprintf(stderr, "[!] daemon already initalised!\n");
             fprintf(stderr, "\tcall destroy_daemon before reinitialising!\n");
             goto init_exit;
@@ -81,18 +81,18 @@ init_daemon(char *rundir, uid_t run_uid, gid_t run_gid)
      * saving any of this to the configuration struct so as to ensure the
      * user doesn't accidentally try to daemonise with an invalid setup.
      */
-    cfg = calloc((size_t)1, sizeof(struct libdaemon_config));
-    if (NULL == cfg)
+    daemon_cfg = calloc((size_t)1, sizeof(struct libdaemon_config));
+    if (NULL == daemon_cfg)
         goto init_exit;
 
-    cfg->rundir     = calloc((size_t)PATH_MAX, sizeof(char));
-    cfg->pidfile    = calloc((size_t)PATH_MAX, sizeof(char));
-    cfg->logfile    = NULL;        /* set via daemon_setlog */
-    cfg->logfd      = -1;          /* set via daemon_setlog */
-    cfg->run_uid    = run_uid;
-    cfg->run_gid    = run_gid;
+    daemon_cfg->rundir     = calloc((size_t)PATH_MAX, sizeof(char));
+    daemon_cfg->pidfile    = calloc((size_t)PATH_MAX, sizeof(char));
+    daemon_cfg->logfile    = NULL;        /* set via daemon_setlog */
+    daemon_cfg->logfd      = -1;          /* set via daemon_setlog */
+    daemon_cfg->run_uid    = run_uid;
+    daemon_cfg->run_gid    = run_gid;
 
-    snprintf(cfg->rundir, (size_t)PATH_MAX, "%s", rundir);
+    snprintf(daemon_cfg->rundir, (size_t)PATH_MAX, "%s", rundir);
     libdaemon_do_kill = 0;
     retval = EXIT_SUCCESS;
 
@@ -115,32 +115,33 @@ run_daemon(void)
         int fd, retval;
         retval = EXIT_FAILURE;
 
-        if (NULL == cfg) {
+        if (NULL == daemon_cfg) {
             fprintf(stderr, "[!] config struct not initalised!\n");
             fprintf(stderr, "\tinit_daemon needs to be called first!\n");
             goto run_exit;
         }
 
         /* ensure we aren't running already */
-        if (EXIT_FAILURE == gen_pidfile(cfg->rundir)) {
+        if (EXIT_FAILURE == gen_pidfile(daemon_cfg->rundir)) {
             perror("gen_pidfile");
             goto run_exit;
         }
         else
-            if (EXIT_FAILURE == destroy_pidfile(cfg->rundir)) {
+            if (EXIT_FAILURE == destroy_pidfile(daemon_cfg->rundir)) {
                 perror("destroy_pidfile");
                 goto run_exit;
             }
 
         syslog(LOG_INFO, "attempting to daemonise as %u:%u...",
-               (unsigned int)cfg->run_uid, (unsigned int)cfg->run_gid);
+               (unsigned int)daemon_cfg->run_uid, 
+               (unsigned int)daemon_cfg->run_gid);
 
         /* attempt to drop privileges if required */
-        if ((cfg->run_uid != getuid()) || 
-            (0 != setreuid(cfg->run_uid, cfg->run_uid)))
+        if ((daemon_cfg->run_uid != getuid()) || 
+            (0 != setreuid(daemon_cfg->run_uid, daemon_cfg->run_uid)))
             goto run_exit;
-        if ((cfg->run_gid != getgid()) || 
-            (0 != setregid(cfg->run_gid, cfg->run_gid)))
+        if ((daemon_cfg->run_gid != getgid()) || 
+            (0 != setregid(daemon_cfg->run_gid, daemon_cfg->run_gid)))
             goto run_exit;
 
         /* If we are already daemonised, fail to redaemonise. */
@@ -165,7 +166,7 @@ run_daemon(void)
         }
 
         /* Write the final pid to a file. */
-        if (EXIT_FAILURE == gen_pidfile(cfg->rundir)) {
+        if (EXIT_FAILURE == gen_pidfile(daemon_cfg->rundir)) {
             perror("gen_pidfile");
             goto run_exit;
         }
@@ -201,7 +202,7 @@ run_daemon(void)
         signal(LIBDAEMON_DEATH_KNOLL, dedaemonise);
 
         /* Store the pidfile in the libdaemon_config struct. */
-        cfg->pidfile = get_pidfile_name(cfg->rundir);
+        daemon_cfg->pidfile = get_pidfile_name(daemon_cfg->rundir);
 
         syslog(LOG_INFO, "daemonised!");
 
@@ -218,32 +219,36 @@ int
 destroy_daemon(void)
 {
         int retval;
+        syslog(LOG_INFO, "enter destroy()");
 
         retval = EXIT_FAILURE;
 
-        if (NULL == cfg) {
+        if (NULL == daemon_cfg) {
             fprintf(stderr, "[!] daemon not initialised!\n");
             fprintf(stderr, "\tyou should not call destroy_daemon before");
             fprintf(stderr, "calling init_daemon.\n");
             goto destroy_exit;
         }
 
-        if (-1 == destroy_pidfile(cfg->rundir)) 
+        syslog(LOG_INFO, "begin shutdown sequence");
+        if (-1 == destroy_pidfile(daemon_cfg->rundir)) 
             perror("attempting to unlink pidfile");
 
-        free(cfg->rundir);
-        free(cfg->pidfile);
-        free(cfg->logfile);
+        free(daemon_cfg->rundir);
+        free(daemon_cfg->pidfile);
+        free(daemon_cfg->logfile);
+        syslog(LOG_INFO, "config pidfile: %s", daemon_cfg->pidfile);
 
-        cfg->rundir = NULL;
-        cfg->pidfile = NULL;
-        cfg->logfile = NULL;
+        daemon_cfg->rundir = NULL;
+        daemon_cfg->pidfile = NULL;
+        daemon_cfg->logfile = NULL;
 
-        if ((cfg->logfd > 0) && (-1 == close(cfg->logfd)) && (EBADF != errno))
+        if ((daemon_cfg->logfd > 0) && (-1 == close(daemon_cfg->logfd)) && 
+            (EBADF != errno))
             goto destroy_exit;
 
-        free(cfg);
-        cfg = NULL;
+        free(daemon_cfg);
+        daemon_cfg = NULL;
 
         /* Restore stdin, stdout, and stderr. */
         #ifdef _LINUX_SOURCE
@@ -270,7 +275,7 @@ destroy_exit:
 struct libdaemon_config 
 *daemon_getconfig()
 {
-        return cfg;
+        return daemon_cfg;
 }
 
 void
