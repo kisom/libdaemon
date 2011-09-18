@@ -218,10 +218,7 @@ run_exit:
 int
 destroy_daemon(void)
 {
-        int retval;
-        syslog(LOG_INFO, "enter destroy()");
-
-        retval = EXIT_FAILURE;
+        int retval = EXIT_FAILURE;
 
         if (NULL == daemon_cfg) {
             fprintf(stderr, "[!] daemon not initialised!\n");
@@ -230,7 +227,6 @@ destroy_daemon(void)
             goto destroy_exit;
         }
 
-        syslog(LOG_INFO, "begin shutdown sequence");
         if (-1 == destroy_pidfile(daemon_cfg->rundir)) 
             perror("attempting to unlink pidfile");
 
