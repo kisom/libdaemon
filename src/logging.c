@@ -12,7 +12,49 @@
 #include <config.h>
 
 #ifdef _LINUX_SOURCE
-#include <sys.file.h>
+#include <sys/file.h>
 #endif
-#include <sys/type.h>
+#include <sys/types.h>
+#include <fcntl.h>
+#include <limits.h>
+#include <stdarg.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <unistd.h>
+
+#include "daemon.h"
+
+int
+daemon_setlog(char *logfile)
+{
+        int retval = EXIT_FAILURE;
+        struct libdaemon_config *daemon_cfg;
+
+        daemon_cfg = daemon_getconfig();
+
+        if (daemon_cfg->logfd > 2)
+            close(daemon_cfg->logfd);
+
+        if (NULL != daemon_cfg->logfile) {
+            free(daemon_cfg->logfile);
+            daemon_cfg->logfile = NULL;
+        }
+
+        if (NULL == logfile) {
+            daemon_cfg->logfd = -1;
+            retval = EXIT_SUCCESS;
+        }
+        else {
+            daemon_cfg->logfd = open(logfile, O_RDWR | O_APPEND | O_CREAT,
+                                     0600);
+            if (-1 != daemon_cfg->logfd) {
+                daemon_cfg->logfile = strdup(logfile);
+                if (NULL != daemon_cfg->logfile)
+                    retval = EXIT_SUCCESS;
+            }
+        }
+
+        return retval;
+}
 
