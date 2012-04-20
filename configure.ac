@@ -1,9 +1,9 @@
 AC_PREREQ([2.62])
 AC_INIT([libdaemon], 
-        [3.0.3], 
-        [coder@kyleisom.net], 
+        [3.0.4], 
+        [kyle@tyrfingr.is], 
         [], 
-        [http://www.brokenlcd.net/code/libdaemon/])
+        [http://www.tyrfingr.is/libdaemon/])
 AM_INIT_AUTOMAKE
 AM_SILENT_RULES([yes])
 AC_CONFIG_SRCDIR([src/core.c])
