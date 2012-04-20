@@ -1,6 +1,6 @@
 AC_PREREQ([2.62])
 AC_INIT([libdaemon], 
-        [3.0.2], 
+        [3.0.3], 
         [coder@kyleisom.net], 
         [], 
         [http://www.brokenlcd.net/code/libdaemon/])
