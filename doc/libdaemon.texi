@@ -10,7 +10,7 @@
 This manual is for libdaemon, a small and somewhat portable C daemonisation
 library that runs under OpenBSD and Linux.
 
-Copyright @copyright{} 2011 Kyle Isom <@email{kyle@tyrfingr.is}>
+Copyright @copyright{} 2011 Kyle Isom <@email{kyle@@tyrfingr.is}>
 
 @quotation
 This document is released under a dual license. These two licenses are the 
@@ -36,7 +36,7 @@ Commons, 444 Castro Street, Suite 900, Mountain View, California, 94041, USA.
 @titlepage
 @title libdaemon
 @subtitle for version @value{VERSION}, @value{UPDATED}
-@author Kyle Isom (@email{kyle@tyrfingr.is})
+@author Kyle Isom (@email{kyle@@tyrfingr.is})
 @page
 @vskip 0pt plus 1filll
 @paragraphindent 0
