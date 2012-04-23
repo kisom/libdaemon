@@ -21,6 +21,12 @@ if test "x${host_os%-gnu}" = xlinux; then
     AC_MSG_NOTICE([Linux system detected, configuring for Linux compatability.])
     AC_DEFINE([_LINUX_SOURCE], [], [build for linux host])
 else
+    echo "HOSTOS: ${host_os}"
+    echo "HOSTOS2: ${host_os%%[[[:digit:]]]*}"
+    if test "x${host_os%%[[[:digit:]]]*}" = xfreebsd; then
+        AC_MSG_NOTICE([FreeBSD system detected, configuring for FreeBSD compatibility.])
+        AC_DEFINE([_FREEBSD_SOURCE], [], [use FreeBSD version of closefrom])
+    fi
     AH_TOP([#undef _GNU_SOURCE    /* make sure this is unset for BSD systems */])
     AC_DEFINE([_BSD_SOURCE], [], [use BSD semantics])
     AC_MSG_NOTICE([Configuring for BSD compatibility.])

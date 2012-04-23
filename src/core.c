@@ -181,6 +181,8 @@ run_daemon(void)
         /* Close all file descriptors. */
         #ifdef _LINUX_SOURCE
         if ((0 != close(0)) || (0 != close(1)) || (0 != close(2)))
+        #elif  defined _FREEBSD_SOURCE
+        if ((0 != close(0)) || (0 != close(1)) || (0 != close(2)))
         #else
         if (0 != closefrom(0))
         #endif
@@ -248,6 +250,8 @@ destroy_daemon(void)
 
         /* Restore stdin, stdout, and stderr. */
         #ifdef _LINUX_SOURCE
+        if ((0 != close(0)) || (0 != close(1)) || (0 != close(2)))
+        #elif defined _FREEBSD_SOURCE
         if ((0 != close(0)) || (0 != close(1)) || (0 != close(2)))
         #else
         if (0 != closefrom(0))
