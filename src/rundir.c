@@ -94,7 +94,7 @@ test_rundir_access(char *rundir)
 
         statres = stat(rundir, &rdst);
         if (-1 == statres) {
-            if ((ENOENT == errno) && (-1 == mkdir(rundir, 00700)))
+            if ((ENOENT == errno) && (-1 == mkdir(rundir, (mode_t)00700)))
                 return retval;
             else
                 if (! (rdst.st_mode & S_IFDIR))
