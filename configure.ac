@@ -1,6 +1,6 @@
 AC_PREREQ([2.62])
 AC_INIT([libdaemon], 
-        [3.0.4], 
+        [3.1.0], 
         [kyle@tyrfingr.is], 
         [], 
         [http://www.tyrfingr.is/libdaemon/])
