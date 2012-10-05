@@ -1,15 +1,11 @@
-.Dd $Mdocdate$
-.Dt libdaemon 3
+.Dd October 3, 2012
+.Dt LIBDAEMON 3
 .Os
 .Sh NAME
 .Nm init_daemon ,
 .Nm run_daeomn ,
 .Nm destroy_daemon ,
-.Nm daemon_log ,
-.Nm daemon_vlog
 .Nd a lightweight daemon framework.
-.Sh LIBRARY
-.Lb daemon
 .Sh SYNOPSIS
 .In daemon.h
 .Ft int
@@ -22,64 +18,54 @@
 .Fn run_daemon void
 .Ft int
 .Fn destroy_daemon void
-.Ft int
-.Fn daemon_log "char *message"
-.Ft int
-.Fn daemon_vlog "char *fmt" "..."
 .Ft struct libdaemon_config *
 .Fn daemon_getconfig void
 .Sh DESCRIPTION
 libdaemon is a minimal and somewhat portable daemonisation library.
-
 .Ic init_daemon
 is used to set up the daemon. The rundir is a path specifying where the daemon
-should run under. The run directory is very important as 
-this is where the PID file is kept and, by default, the base directory for 
-logging. Libdaemon expects that the all but the lowest layer of the directory 
-exists; for example, given /var/run/mydaemon, the library would expect /var/run
-to exist.
-
-If the init_daemon function is called with a NULL rundir argument, it will 
+should run under. The run directory is very important as
+this is where the PID file is kept. Libdaemon expects that the all but the
+lowest layer of the directory exists; for example, given /var/run/mydaemon,
+the library would expect /var/run to exist.
+If the init_daemon function is called with a NULL rundir argument, it will
 attempt to best-guess a valid directory to use. It decides using the following
 criteria:
-
 .Bl -enum -width .Ds
 .It
-If the program is running as root, it is expected to have read / write 
-privileges for 
-.Pa /var/run 
-and will use 
-.Pa /var/run/__progname 
+If the program is running as root, it is expected to have read / write
+privileges for
+.Pa /var/run
+and will use
+.Pa /var/run/__progname
 as the run directory.
-For example, if the testd program was run as root, it would use 
+For example, if the testd program was run as root, it would use
 .Pa /var/run/testd .
 .It
-If the program is not running as root but has the 
-.Ev ${HOME} 
-environment variable 
-set, it will use 
-.Pa ${HOME}/.__progname 
-as the run directory. For example, if the 
-testd program was run as a normal user 'kyle' with the 
-.Ev HOME 
-variable set, it would use 
+If the program is not running as root but has the
+.Ev ${HOME}
+environment variable
+set, it will use
+.Pa ${HOME}/.__progname
+as the run directory. For example, if the
+testd program was run as a normal user 'kyle' with the
+.Ev HOME
+variable set, it would use
 .Pa /home/kyle/.testd.
 .It
-If the program is not running as root and does not have the 
-.Ev HOME 
-environment 
-variable set, it will use 
-.Pa /tmp/__progname 
-as the run directory. For example, if the testd program was run as a normal 
-user without ${HOME} set, it would use 
+If the program is not running as root and does not have the
+.Ev HOME
+environment
+variable set, it will use
+.Pa /tmp/__progname
+as the run directory. For example, if the testd program was run as a normal
+user without ${HOME} set, it would use
 .Pa /tmp/testd .
-.El 
-
+.El
 Once the daemon is initalised,
 .Ic run_daemon
 may be called to trigger daemonisation. At this point, the program will
 fork off into the background and run as a daemon.
-
 The
 .Ic daemon_getconfig
 function may be called to return a configuration structure.
@@ -94,40 +80,25 @@ is defined as
 struct libdaemon_config {
         char    *rundir;        /* the directory the daemon runs under */
         char    *pidfile;       /* the file containing the daemon's pid */
-        char    *logfile;       /* the file being logged to */
-        int      logfd;         /* the log file's file descriptor */
 
         uid_t   run_uid;        /* the uid the daemon is running as */
         gid_t   run_gid;        /* the gid the daemon is running as */
 
 };
 .Ed
-
 .Ic destroy_daemon
 is used to teardown the daemon. It should be called just prior to calling
 .Fn exit .
-
-
-.Sh IMPLEMENTATION NOTES
-.Ic daemon_setlog ,
-.Ic daemon_log ,
-and
-.Ic daemon_vlog
-are not currently implemented.
 .Sh RETURN VALUES
 .Ic init_daemon,
 .Ic run_daemon,
 and
 .Ic destroy_daemon
 return 0 on success, and >0 on failure.
-
 .Ic daemon_getconfig
-returns a 
+returns a
 .Ic struct daemon_config
 on success, and NULL if the daemon has not been initalised.
-.\" .Sh EXAMPLES
-.\" .Sh ERRORS
-.\" For sections 2, 3, & 9 only.
 .Sh SEE ALSO
 The source and documentation are available on
 .Lk http://www.tyrfingr.is/projects/libdaemon/ "Tyrfingr" .
@@ -136,16 +107,13 @@ The source and documentation are available on
 was written by
 .An Kyle Isom Aq Mt kyle@tyrfingr.is .
 .Sh CAVEATS
-Libdaemon is a lightweight library, and as such certain behaviours are not 
+Libdaemon is a lightweight library, and as such certain behaviours are not
 supported. Currently known and understood limitations are:
-
 .Bl -bullet -width .Ds
 .It
-Because Libdaemon uses a pidfile to check whether it is running or not, only 
+Because Libdaemon uses a pidfile to check whether it is running or not, only
 one instance of given binary can be running at a single time. This is currently
 being looked into and a better way of doing this is being evaluated.
-.It
-The logging infrastructure has not been implemented yet.
 .El
 .Sh BUGS
 None known at this time.

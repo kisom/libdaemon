@@ -1,19 +1,30 @@
-/****************************************************************************
- * file: core.c                                                             *
- * author: kyle isom <coder@kyleisom.net>                                   *
- * created: 2011-09-11                                                      *
- * modified: 2011-09-11                                                     *
- *                                                                          *
- * core and public functionality of libdaemon, a small C library to         *
- * facilitate daemonising.                                                  *
- *                                                                          *
- * it is released under an ISC / public domain dual-license; see any of the *
- * header files or the file "LICENSE" (or COPYING) under the project root.  *
- ****************************************************************************/
+/*
+ * the ISC license:                                                         
+ * Copyright (c) 2011 Kyle Isom <coder@kyleisom.net>                        
+ *                                                                          
+ * Permission to use, copy, modify, and distribute this software for any    
+ * purpose with or without fee is hereby granted, provided that the above   
+ * copyright notice and this permission notice appear in all copies.        
+ *                                                                          
+ * THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES 
+ * WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF         
+ * MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR  
+ * ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES   
+ * WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN    
+ * ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF  
+ * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.           
+ *
+ * you may choose to follow this license or public domain. my intent with   
+ * dual-licensing this code is to afford you, the end user, maximum freedom 
+ * with the software. if public domain affords you more freedom, use it.    
+ */
+
 #include <config.h>
 
 #include <sys/types.h>
 #include <sys/stat.h>
+
+#include <err.h>
 #include <errno.h>
 #include <fcntl.h>
 #include <limits.h>
@@ -28,80 +39,67 @@
 
 /* this is the primary configuration struct for the daemon */
 static struct libdaemon_config  *daemon_cfg;
-extern char                     *__progname;
+extern char *__progname;
 
-/* private daemon functions */
 static void                      dedaemonise(int);
 
-/* external functions */
-extern char    *get_default_rundir(void);
-extern int      test_rundir_access(char *);
-extern int      gen_pidfile(char *);
-extern int      destroy_pidfile(char *);
-extern char    *get_pidfile_name(char *);
 
-
+/*
+ * initialise the daemon and prepare for daemonisation
+ */
 int
 init_daemon(char *rundir, uid_t run_uid, gid_t run_gid)
 {
         char            *testfile;          /* for access priv check */
         int              free_rundir, retval;
-   
+
         retval = EXIT_FAILURE;
         testfile = NULL;
         free_rundir = 0;
 
         if (NULL != daemon_cfg) {
-            fprintf(stderr, "[!] daemon already initalised!\n");
-            fprintf(stderr, "\tcall destroy_daemon before reinitialising!\n");
-            goto init_exit;
+                warnx("[!] daemon already initalised!");
+                warnx("\tcall destroy_daemon before reinitialising!");
+                goto init_exit;
         }
 
-        /* if run_uid is 0, set it to the current uid. */
         if (0 == run_uid)
-            run_uid = getuid();
-
+                run_uid = getuid();
         if (0 == run_gid)
-            run_gid = getgid();
+                run_gid = getgid();
 
         if (NULL == rundir) 
-            rundir = get_default_rundir();
-            if (NULL != rundir)
+                rundir = get_default_rundir();
+
+        if (NULL != rundir) {
                 free_rundir = 1;
-            else {
-                fprintf(stderr, "[!] rundir returned NULL!\n");
+        } else {
+                warnx("[!] rundir returned NULL!");
                 goto init_exit;
-            }
+        }
 
         if (-1 == test_rundir_access(rundir))
-            goto init_exit;
+                goto init_exit;
 
-    /*
-     * We wait until all the tests and sanity checks have passed before 
-     * saving any of this to the configuration struct so as to ensure the
-     * user doesn't accidentally try to daemonise with an invalid setup.
-     */
-    daemon_cfg = calloc((size_t)1, sizeof(struct libdaemon_config));
-    if (NULL == daemon_cfg)
-        goto init_exit;
+        daemon_cfg = calloc((size_t)1, sizeof(struct libdaemon_config));
+        if (NULL == daemon_cfg)
+                goto init_exit;
 
-    daemon_cfg->rundir     = calloc((size_t)PATH_MAX, sizeof(char));
-    daemon_cfg->pidfile    = calloc((size_t)PATH_MAX, sizeof(char));
-    daemon_cfg->logfile    = NULL;        /* set via daemon_setlog */
-    daemon_cfg->logfd      = -1;          /* set via daemon_setlog */
-    daemon_cfg->run_uid    = run_uid;
-    daemon_cfg->run_gid    = run_gid;
+        daemon_cfg->rundir     = calloc((size_t)PATH_MAX, sizeof(char));
+        daemon_cfg->pidfile    = calloc((size_t)PATH_MAX, sizeof(char));
+        daemon_cfg->run_uid    = run_uid;
+        daemon_cfg->run_gid    = run_gid;
 
-    snprintf(daemon_cfg->rundir, (size_t)PATH_MAX, "%s", rundir);
-    libdaemon_do_kill = 0;
-    retval = EXIT_SUCCESS;
+        snprintf(daemon_cfg->rundir, (size_t)PATH_MAX, "%s", rundir);
+        libdaemon_do_kill = 0;
+        retval = EXIT_SUCCESS;
 
 init_exit:
         if (EXIT_FAILURE == retval)
-            perror(__progname);
+                perror(__progname);
         if (1 == free_rundir) {
-            free(rundir);
-            rundir = NULL;
+                free(rundir);
+                rundir = NULL;
         }
         free(testfile);
         testfile = NULL;
@@ -109,6 +107,9 @@ init_exit:
 }
 
 
+/*
+ * run_daemon actually daemonises the program
+ */
 int
 run_daemon(void)
 {
@@ -116,172 +117,138 @@ run_daemon(void)
         retval = EXIT_FAILURE;
 
         if (NULL == daemon_cfg) {
-            fprintf(stderr, "[!] config struct not initalised!\n");
-            fprintf(stderr, "\tinit_daemon needs to be called first!\n");
-            goto run_exit;
+                warnx("[!] config struct not initalised!");
+                warnx("\tinit_daemon needs to be called first!");
+                goto run_exit;
         }
 
-        /* ensure we aren't running already */
         if (EXIT_FAILURE == gen_pidfile(daemon_cfg->rundir)) {
-            perror("gen_pidfile");
-            goto run_exit;
-        }
-        else
-            if (EXIT_FAILURE == destroy_pidfile(daemon_cfg->rundir)) {
-                perror("destroy_pidfile");
+                perror("gen_pidfile");
                 goto run_exit;
-            }
+        } else {
+                if (EXIT_FAILURE == destroy_pidfile(daemon_cfg->rundir)) {
+                        perror("destroy_pidfile");
+                        goto run_exit;
+                }
+        }
 
         syslog(LOG_INFO, "attempting to daemonise as %u:%u...",
-               (unsigned int)daemon_cfg->run_uid, 
-               (unsigned int)daemon_cfg->run_gid);
+            (unsigned int)daemon_cfg->run_uid, 
+            (unsigned int)daemon_cfg->run_gid);
 
-        /* attempt to drop privileges if required */
         if ((daemon_cfg->run_uid != getuid()) || 
             (0 != setreuid(daemon_cfg->run_uid, daemon_cfg->run_uid)))
-            goto run_exit;
+                goto run_exit;
         if ((daemon_cfg->run_gid != getgid()) || 
             (0 != setregid(daemon_cfg->run_gid, daemon_cfg->run_gid)))
-            goto run_exit;
+                goto run_exit;
 
-        /* If we are already daemonised, fail to redaemonise. */
         if (0 == getppid()) {
-            retval = LIBDAEMON_DO_NOT_DESTROY;    
-            goto run_exit;
+                retval = LIBDAEMON_DO_NOT_DESTROY;    
+                goto run_exit;
+        } else if (0 != fork()) {
+                retval = LIBDAEMON_DO_NOT_DESTROY;    
+                goto run_exit;
         }
 
-        /* Fork to background and kill off the parent. */
-        if (0 != fork()) {
-            retval = LIBDAEMON_DO_NOT_DESTROY;    
-            goto run_exit;
-        }
-
-        /* Set session leader. */
         setsid();
-
-        /* Fork again to prevent reacquisition of a controlling terminal. */
         if (0 != fork()) {
-            retval = LIBDAEMON_DO_NOT_DESTROY;
-            goto run_exit;
+                retval = LIBDAEMON_DO_NOT_DESTROY;
+                goto run_exit;
+        } else if (EXIT_FAILURE == gen_pidfile(daemon_cfg->rundir)) {
+                warn("failed to write pid file");
+                goto run_exit;
         }
 
-        /* Write the final pid to a file. */
-        if (EXIT_FAILURE == gen_pidfile(daemon_cfg->rundir)) {
-            perror("gen_pidfile");
-            goto run_exit;
-        }
- 
-        /* Reset the umask to more secure permissions. */
         umask((mode_t)0027);
-
-        /* Change the working directory to filesystem root. */
         if (-1 == chdir("/"))
-            goto run_exit;
+                goto run_exit;
+        else if ((0 != close(0)) || (0 != close(1)) || (0 != close(2)))
+                goto run_exit;
 
-        /* Close all file descriptors. */
-        #ifdef _LINUX_SOURCE
-        if ((0 != close(0)) || (0 != close(1)) || (0 != close(2)))
-        #elif  defined _FREEBSD_SOURCE
-        if ((0 != close(0)) || (0 != close(1)) || (0 != close(2)))
-        #else
-        if (0 != closefrom(0))
-        #endif
-            goto run_exit;
-
-        /* We should redirect I/O to /dev/null for security and stability. */
         fd = open("/dev/null", O_RDWR);
         if (-1 == fd)
-            goto run_exit;
-        if ((-1 == dup(fd)) || (-1 == dup(fd)))
-            goto run_exit;
-        
-        /* Ignore certain signals and setup death knoll signal handler.  */
-        signal(SIGTTOU, SIG_IGN);   /* Ignore stop process via bg write. */
-        signal(SIGTTIN, SIG_IGN);   /* Ignore stop process via bg read.  */
-        signal(SIGTSTP, SIG_IGN);   /* Ignore stop process.              */
+                goto run_exit;
+        else if ((-1 == dup(fd)) || (-1 == dup(fd)))
+                goto run_exit;
 
-        /* Catch death knoll as a signal to exit gracefully. */
+        signal(SIGTTOU, SIG_IGN);
+        signal(SIGTTIN, SIG_IGN);
+        signal(SIGTSTP, SIG_IGN);
+
         signal(LIBDAEMON_DEATH_KNOLL, dedaemonise);
-
-        /* Store the pidfile in the libdaemon_config struct. */
         daemon_cfg->pidfile = get_pidfile_name(daemon_cfg->rundir);
-
         syslog(LOG_INFO, "daemonised!");
 
         retval = EXIT_SUCCESS;
 
 run_exit:
         if (EXIT_FAILURE == retval)
-            perror("run_daemon");
+                warn("failed to daemonise");
 
         return retval;
 }
 
+
+/*
+ * destroy_daemon frees all the daemon information and prepares for
+ * a clean exit.
+ */
 int
 destroy_daemon(void)
 {
         int retval = EXIT_FAILURE;
 
         if (NULL == daemon_cfg) {
-            fprintf(stderr, "[!] daemon not initialised!\n");
-            fprintf(stderr, "\tyou should not call destroy_daemon before");
-            fprintf(stderr, "calling init_daemon.\n");
-            goto destroy_exit;
+                warnx("daemon not initialised");
+                goto destroy_exit;
         }
 
         if (-1 == destroy_pidfile(daemon_cfg->rundir)) 
-            perror("attempting to unlink pidfile");
+                warn("attempting to unlink pidfile");
 
         free(daemon_cfg->rundir);
         free(daemon_cfg->pidfile);
-        free(daemon_cfg->logfile);
         syslog(LOG_INFO, "config pidfile: %s", daemon_cfg->pidfile);
 
         daemon_cfg->rundir = NULL;
         daemon_cfg->pidfile = NULL;
-        daemon_cfg->logfile = NULL;
-
-        if ((daemon_cfg->logfd > 0) && (-1 == close(daemon_cfg->logfd)) && 
-            (EBADF != errno))
-            goto destroy_exit;
 
         free(daemon_cfg);
         daemon_cfg = NULL;
 
-        /* Restore stdin, stdout, and stderr. */
-        #ifdef _LINUX_SOURCE
         if ((0 != close(0)) || (0 != close(1)) || (0 != close(2)))
-        #elif defined _FREEBSD_SOURCE
-        if ((0 != close(0)) || (0 != close(1)) || (0 != close(2)))
-        #else
-        if (0 != closefrom(0))
-        #endif
-            goto destroy_exit;
-        
-        if ((-1 == open("/dev/stdin",  O_RDONLY))   ||
-            (-1 == open("/dev/stdout", O_WRONLY))   ||
-            (-1 == open("/dev/stdout", O_WRONLY)))
-            goto destroy_exit;
+                goto destroy_exit;
+        else if ((-1 == open("/dev/stdin",  O_RDONLY))   ||
+                 (-1 == open("/dev/stdout", O_WRONLY))   ||
+                 (-1 == open("/dev/stdout", O_WRONLY)))
+                goto destroy_exit;
 
         retval = EXIT_SUCCESS;
         syslog(LOG_INFO, "successfully daedaemonised!");
+
 destroy_exit:
-        
         return retval;
 }
 
 
-
+/*
+ * return the dameon configuration for use by the client
+ */
 struct libdaemon_config 
 *daemon_getconfig()
 {
         return daemon_cfg;
 }
 
+
+/*
+ * signal handler to tear down the daemon.
+ */
 void
 dedaemonise(int flags)
 {
-    flags = 0;
-    syslog(LOG_INFO, "destroying daemon: %d", destroy_daemon());
-    exit(EXIT_SUCCESS);
+        flags = 0;
+        syslog(LOG_INFO, "destroying daemon: %d", destroy_daemon());
+        exit(EXIT_SUCCESS);
 }
