@@ -20,8 +20,8 @@
  */
 
 
-#ifndef __LIBDAEMON_DAEMON_H
-#define __LIBDAEMON_DAEMON_H
+#ifndef __LIBDAEMON_DAEMON_RUNDIR_H
+#define __LIBDAEMON_DAEMON_RUNDIR_H
 
 char    *get_default_rundir(void);
 int      test_rundir_access(char *);
@@ -30,3 +30,4 @@ int      destroy_pidfile(char *);
 char    *get_pidfile_name(char *);
 
 #endif
+
